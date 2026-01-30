@@ -1,24 +1,24 @@
-
-
-import Header from './components/Header'
-import Footer from './components/Footer'
-import Banner from './components/Banner'
-import MovieList from './components/MovieList'
-
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Header from "./components/Header";
+import Footer from "./components/Footer";
+import Home from "./pages/Home";
+import MovieDetail from "./pages/MovieDetail";
 
 function App() {
- 
-
   return (
-    <>
-      <div>
+    <BrowserRouter>
+      <div className="bg-black min-h-screen text-white">
         <Header />
-        <Banner />
-        <MovieList />
+
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/movie/:id" element={<MovieDetail />} />
+        </Routes>
+
         <Footer />
       </div>
-    </>
-  )
+    </BrowserRouter>
+  );
 }
 
-export default App
+export default App;
