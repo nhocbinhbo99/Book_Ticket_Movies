@@ -1,7 +1,8 @@
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 
 function MovieDetail() {
+  const navigate = useNavigate();
   const { id } = useParams();
   const [movie, setMovie] = useState(null);
   const [trailer, setTrailer] = useState(null);
@@ -15,7 +16,7 @@ function MovieDetail() {
   useEffect(() => {
     const fetchMovie = async () => {
       const res = await fetch(
-        `https://api.themoviedb.org/3/movie/${id}?api_key=${import.meta.env.VITE_API_KEY}&language=vi-VN`
+        `https://api.themoviedb.org/3/movie/${id}?api_key=${import.meta.env.VITE_API_KEY}&language=vi-VN`,
       );
       const data = await res.json();
       setMovie(data);
@@ -23,11 +24,11 @@ function MovieDetail() {
 
     const fetchTrailer = async () => {
       const res = await fetch(
-        `https://api.themoviedb.org/3/movie/${id}/videos?api_key=${import.meta.env.VITE_API_KEY}`
+        `https://api.themoviedb.org/3/movie/${id}/videos?api_key=${import.meta.env.VITE_API_KEY}`,
       );
       const data = await res.json();
       const yt = data.results.find(
-        v => v.type === "Trailer" && v.site === "YouTube"
+        (v) => v.type === "Trailer" && v.site === "YouTube",
       );
       if (yt) setTrailer(yt.key);
     };
@@ -48,12 +49,11 @@ function MovieDetail() {
 
   return (
     <div className="bg-black min-h-screen text-white">
-
       {/* BANNER */}
       <div
         className="h-[480px] bg-cover bg-center relative"
         style={{
-          backgroundImage: `url(${import.meta.env.VITE_IMG_URL}${movie.backdrop_path})`
+          backgroundImage: `url(${import.meta.env.VITE_IMG_URL}${movie.backdrop_path})`,
         }}
       >
         <div className="absolute inset-0 bg-black/70 flex items-center justify-center">
@@ -71,11 +71,10 @@ function MovieDetail() {
       {/* MAIN */}
       <div className="max-w-7xl mx-auto px-6 relative -mt-16">
         <div className="flex flex-col md:flex-row gap-10">
-
           {/* POSTER */}
-         <img
-  src={`${import.meta.env.VITE_IMG_URL}${movie.poster_path}`}
-  className="
+          <img
+            src={`${import.meta.env.VITE_IMG_URL}${movie.poster_path}`}
+            className="
     w-64 
     h-[380px] 
     object-cover 
@@ -83,14 +82,11 @@ function MovieDetail() {
     shadow-2xl 
     border border-gray-700
   "
-/>
+          />
 
           {/* INFO */}
           <div className="flex-1 mt-20">
-
-            <h1 className="text-5xl font-bold mb-3">
-              {movie.title}
-            </h1>
+            <h1 className="text-5xl font-bold mb-3">{movie.title}</h1>
 
             <p className="text-gray-400 mb-3">
               📅 {movie.release_date} • ⭐ {movie.vote_average}
@@ -98,7 +94,7 @@ function MovieDetail() {
 
             {/* GENRES */}
             <div className="flex gap-2 flex-wrap mb-6">
-              {movie.genres?.map(g => (
+              {movie.genres?.map((g) => (
                 <span
                   key={g.id}
                   className="bg-red-600/20 text-red-400 px-3 py-1 rounded-full text-sm"
@@ -110,7 +106,12 @@ function MovieDetail() {
 
             {/* BUTTONS */}
             <div className="flex gap-4 mb-6">
-              <button className="bg-blue-600 px-6 py-3 rounded-lg hover:bg-blue-700 shadow transition">
+              <button
+                className="bg-blue-600 px-6 py-3 rounded-lg hover:bg-blue-700 shadow transition"
+                onClick={() => {
+                  navigate(`/movie/ticketbooking/${movie.id}`);
+                }}
+              >
                 ▶ Đặt Vé Ngay
               </button>
               <button className="bg-green-600 px-6 py-3 rounded-lg hover:bg-green-700 shadow transition">
@@ -121,9 +122,7 @@ function MovieDetail() {
             {/* OVERVIEW */}
             <div className="bg-gray-900 p-6 rounded-lg shadow border border-gray-800">
               <h2 className="text-xl font-semibold mb-3">Tóm tắt</h2>
-              <p className="text-gray-300 leading-relaxed">
-                {movie.overview}
-              </p>
+              <p className="text-gray-300 leading-relaxed">{movie.overview}</p>
             </div>
           </div>
         </div>
@@ -159,7 +158,7 @@ function MovieDetail() {
 
           {/* STAR PICK */}
           <div className="my-3 text-3xl">
-            {[1,2,3,4,5].map(star => (
+            {[1, 2, 3, 4, 5].map((star) => (
               <span
                 key={star}
                 onClick={() => setRating(star)}
