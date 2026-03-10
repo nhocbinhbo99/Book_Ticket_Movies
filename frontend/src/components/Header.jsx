@@ -60,9 +60,12 @@ function Header() {
           </span>
 
           {/* AVATAR */}
-          <div className="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center cursor-pointer hover:bg-gray-500 transition">
+          <Link
+            to="/account"
+            className="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center cursor-pointer hover:bg-gray-500 transition"
+          >
             👤
-          </div>
+          </Link>
         </div>
       </div>
     </header>
