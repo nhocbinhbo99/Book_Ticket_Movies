@@ -27,7 +27,7 @@ function MovieList({ movies = [] }) {
           onChange={(e) => setSearch(e.target.value)}
           className="px-5 py-3 rounded-xl text-black w-full md:w-80 shadow-lg focus:ring-2 focus:ring-red-500"
         />
-
+  
         <select
           value={sort}
           onChange={(e) => setSort(e.target.value)}

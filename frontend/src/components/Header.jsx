@@ -1,12 +1,11 @@
 import { Link } from "react-router-dom";
 import logo from "../assets/logo.png";
-
+import Signup from "../pages/SignUp";
 
 function Header() {
   return (
     <header className="w-full bg-[#1f1f1f] text-white shadow-md">
       <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
-        
         {/* LOGO + BRAND */}
         <Link to="/" className="flex items-center gap-2">
           <img src={logo} alt="logo" className="w-10 h-10 object-contain" />
@@ -41,7 +40,6 @@ function Header() {
 
         {/* RIGHT SIDE */}
         <div className="flex items-center gap-4">
-          
           {/* SEARCH */}
           <div className="hidden md:flex items-center bg-[#2a2a2a] rounded-full px-3 py-1 shadow-inner">
             <input
@@ -63,10 +61,12 @@ function Header() {
           </span>
 
           {/* AVATAR */}
-          <div className="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center cursor-pointer hover:bg-gray-500 transition">
+          <Link
+            to="/account"
+            className="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center cursor-pointer hover:bg-gray-500 transition"
+          >
             👤
-          </div>
-
+          </Link>
         </div>
       </div>
     </header>
