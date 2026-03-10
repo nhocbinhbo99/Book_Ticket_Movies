@@ -2,8 +2,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import Home from "./pages/Home";
-import Login from "./pages/Login";
-import SignUp from "./pages/SignUp";
+import TicketBooking from "./pages/TiketBooking";
 import MovieDetail from "./pages/MovieDetail";
 import LightRays from "./components/LightRays";
 import Account from "./pages/Account ";
@@ -31,6 +30,7 @@ function App() {
           {/* <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignUp />} /> */}
           <Route path="/movie/:id" element={<MovieDetail />} />
+          <Route path="/movie/ticketbooking/:id" element={<TicketBooking />} />
         </Routes>
 
         <Footer />
