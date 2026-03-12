@@ -6,7 +6,7 @@ import TicketBooking from "./pages/TiketBooking";
 import MovieDetail from "./pages/MovieDetail";
 import LightRays from "./components/LightRays";
 import Account from "./pages/Account ";
-
+import Movie from "./pages/Moive";
 function App() {
   return (
     <BrowserRouter>
@@ -26,10 +26,12 @@ function App() {
 
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/movie" element={<Movie />} />
           <Route path="/account" element={<Account />} />
           {/* <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignUp />} /> */}
           <Route path="/movie/:id" element={<MovieDetail />} />
+          
           <Route path="/movie/ticketbooking/:id" element={<TicketBooking />} />
         </Routes>
 
