@@ -1,16 +1,21 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+
 import Header from "./components/Header";
 import Footer from "./components/Footer";
-import Home from "./pages/Home";
-import TicketBooking from "./pages/TiketBooking";
-import MovieDetail from "./pages/MovieDetail";
 import LightRays from "./components/LightRays";
+
+import Home from "./pages/Home";
+import Movie from "./pages/Movie";
+import MovieDetail from "./pages/MovieDetail";
+import TicketBooking from "./pages/TiketBooking";
 import Account from "./pages/Account ";
-import Movie from "./pages/Moive";
+
 function App() {
   return (
     <BrowserRouter>
-      <div className="relative z-10  min-h-screen text-white bg-black">
+      <div className="relative z-10 min-h-screen text-white bg-black">
+
+        {/* Background Light Effect */}
         <div className="fixed inset-0 z-0 pointer-events-none">
           <LightRays
             raysOrigin="top-center"
@@ -22,17 +27,24 @@ function App() {
             mouseInfluence={0.1}
           />
         </div>
+
         <Header />
 
         <Routes>
           <Route path="/" element={<Home />} />
+
+          {/* Movies */}
           <Route path="/movie" element={<Movie />} />
-          <Route path="/account" element={<Account />} />
-          {/* <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<SignUp />} /> */}
           <Route path="/movie/:id" element={<MovieDetail />} />
-          
-          <Route path="/movie/ticketbooking/:id" element={<TicketBooking />} />
+
+          {/* Booking */}
+          <Route
+            path="/movie/ticketbooking/:id"
+            element={<TicketBooking />}
+          />
+
+          {/* Account */}
+          <Route path="/account" element={<Account />} />
         </Routes>
 
         <Footer />

@@ -7,30 +7,49 @@ export const getPopularMovies = async () => {
   );
 
   const data = await res.json();
-  console.log("API KEY:", API_KEY);
-
   return data.results;
-  
 };
-export const getBannerMovies = async () => {
+
+// PHIM ĐANG CHIẾU
+export const getNowPlayingMovies = async (page = 1) => {
   const res = await fetch(
-    `https://api.themoviedb.org/3/movie/popular?api_key=${import.meta.env.VITE_API_KEY}&language=vi-VN`
+    `${BASE_URL}/movie/now_playing?api_key=${API_KEY}&language=vi-VN&region=VN&page=${page}`
   );
 
   const data = await res.json();
-  return data.results.slice(0, 3); // lấy 3 phim đầu
+  return data.results;
+};
+
+// PHIM SẮP CHIẾU
+export const getUpcomingMovies = async (page = 1) => {
+  const res = await fetch(
+    `${BASE_URL}/movie/upcoming?api_key=${API_KEY}&language=vi-VN&region=VN&page=${page}`
+  );
+
+  const data = await res.json();
+  return data.results;
+};
+
+export const getBannerMovies = async () => {
+  const res = await fetch(
+    `${BASE_URL}/movie/now_playing?api_key=${API_KEY}&language=vi-VN&region=VN&page=1`
+  );
+
+  const data = await res.json();
+
+  // lấy 3 phim đang chiếu đầu tiên
+  return data.results.slice(0, 3);
 };
 
 export const getMovieTrailer = async (movieId) => {
   const res = await fetch(
-    `https://api.themoviedb.org/3/movie/${movieId}/videos?api_key=${import.meta.env.VITE_API_KEY}&language=vi-VN`
+    `${BASE_URL}/movie/${movieId}/videos?api_key=${API_KEY}&language=vi-VN`
   );
 
   const data = await res.json();
 
   const trailer = data.results.find(
-    (video) =>
-      video.type === "Trailer" && video.site === "YouTube"
+    (video) => video.type === "Trailer" && video.site === "YouTube"
   );
 
   return trailer;
