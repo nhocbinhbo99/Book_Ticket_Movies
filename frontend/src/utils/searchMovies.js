@@ -3,23 +3,17 @@ const API_KEY = import.meta.env.VITE_API_KEY;
 export const searchMovies = async (query) => {
   if (!query) return [];
 
+  // lấy phim đang chiếu ngoài rạp
   const res = await fetch(
-    `https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&language=vi-VN&query=${query}`
+    `https://api.themoviedb.org/3/movie/now_playing?api_key=${API_KEY}&language=vi-VN&region=VN`
   );
 
   const data = await res.json();
 
-  const today = new Date();
-
-  // chỉ lấy phim đang chiếu hoặc sắp chiếu
-  const filtered = data.results.filter((movie) => {
-    const release = new Date(movie.release_date);
-
-    return (
-      movie.release_date &&
-      (release <= today || release > today) // có ngày phát hành
-    );
-  });
+  // filter theo tên phim
+  const filtered = data.results.filter((movie) =>
+    movie.title.toLowerCase().includes(query.toLowerCase())
+  );
 
   return filtered.slice(0, 8);
 };

@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { motion, AnimatePresence } from "motion/react";
+import { AnimatePresence } from "motion/react";
 import { Link } from "react-router-dom";
+
 
 function Account() {
   const [mode, setMode] = useState("login");

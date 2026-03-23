@@ -3,38 +3,35 @@ import { useState, useEffect } from "react";
 import { searchMovies } from "../utils/searchMovies";
 
 function SearchOverlay({ onClose }) {
+
   const [query, setQuery] = useState("");
   const [movies, setMovies] = useState([]);
 
   const navigate = useNavigate();
 
   useEffect(() => {
+
     const fetchMovies = async () => {
+
       if (query.length < 2) {
         setMovies([]);
         return;
       }
 
       const results = await searchMovies(query);
-
-
-      const filtered = results.filter((movie) => {
-        if (!movie.release_date) return false;
-        return true;
-      });
-
-      setMovies(filtered);
+      setMovies(results);
     };
 
     const debounce = setTimeout(fetchMovies, 400);
 
     return () => clearTimeout(debounce);
+
   }, [query]);
 
   return (
     <div className="fixed inset-0 bg-black/90 z-50 p-10 text-white">
 
-      {/* SEARCH INPUT */}
+      {/* INPUT */}
       <div className="max-w-5xl mx-auto mb-10 flex items-center gap-3">
 
         <input
@@ -68,10 +65,9 @@ function SearchOverlay({ onClose }) {
                 navigate(`/movie/${movie.id}`);
                 onClose();
               }}
-              className="flex gap-4 items-center py-3 cursor-pointer hover:bg-gray-800 px-3 rounded transition"
+              className="flex gap-4 items-center py-3 cursor-pointer hover:bg-gray-800 px-3 rounded"
             >
 
-              {/* POSTER */}
               <img
                 src={
                   movie.poster_path
@@ -81,9 +77,9 @@ function SearchOverlay({ onClose }) {
                 className="w-14 rounded"
               />
 
-              {/* INFO */}
               <div>
-                <p className="font-semibold flex items-center gap-2">
+
+                <p className="font-semibold flex gap-2 items-center">
 
                   {movie.title}
 
@@ -105,7 +101,6 @@ function SearchOverlay({ onClose }) {
           );
         })}
 
-        {/* KHÔNG TÌM THẤY */}
         {movies.length === 0 && query.length >= 2 && (
           <p className="text-center text-gray-400 mt-10">
             ❌ Không tìm thấy phim
