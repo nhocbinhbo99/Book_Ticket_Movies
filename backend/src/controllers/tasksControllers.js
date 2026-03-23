@@ -2,7 +2,7 @@ import Task from "../models/Task.js";
 
 
 export const getAllTasks = (request,response)=>{
-    response.status(200).send("ban co 20 vc can lam");
+    response.status(200).json({ message: "ban co 20 vc can lam" });
 }
 
 export const createTask = (req, res)=>{
