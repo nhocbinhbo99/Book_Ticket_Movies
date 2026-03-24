@@ -42,6 +42,7 @@ function Header() {
         <nav className="hidden md:flex items-center gap-8 text-sm font-medium">
           <Link to="/" className="hover:text-yellow-400">Trang chủ</Link>
           <Link to="/movie" className="hover:text-yellow-400">Phim</Link>
+            <Link to="/news" className="hover:text-yellow-400">Tin điện ảnh</Link>
           <Link to="/ticket" className="hover:text-yellow-400">Vé</Link>
         </nav>
 

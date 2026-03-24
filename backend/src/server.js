@@ -1,5 +1,8 @@
 import express from "express";
 import taskRoute from "./routes/tasksRouters.js";
+import authRoute from "./routes/authRouters.js";
+import newsRoute from "./routes/newsRouters.js";
+import moviesRoute from "./routes/moviesRouters.js";
 import { connectDB } from "./config/db.js";
 import dotenv from "dotenv";
 import cors from "cors";
@@ -18,6 +21,9 @@ app.use(
 app.use(express.json());
 
 app.use("/api/tasks", taskRoute);
+app.use("/api/auth", authRoute);
+app.use("/api/news", newsRoute);
+app.use("/api/movies", moviesRoute);
 
 connectDB();
 

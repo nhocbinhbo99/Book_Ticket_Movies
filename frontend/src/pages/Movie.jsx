@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import Banner from "../components/Banner";
-import { getNowPlayingMovies, getUpcomingMovies } from "../services/movies";
+import {
+  getNowPlayingMovies,
+  getUpcomingMovies,
+} from "../services/movies";
 import { Link } from "react-router-dom";
 
 function Movie() {
@@ -15,23 +18,10 @@ function Movie() {
   // Lấy nhiều trang phim
   useEffect(() => {
     const fetchMovies = async () => {
-      let allMovies = [];
-
-      const page1 = await getNowPlayingMovies(1);
-      const page2 = await getNowPlayingMovies(2);
-      const page3 = await getNowPlayingMovies(3);
-
-      const upcoming = await getUpcomingMovies(1);
-
-      allMovies = [...page1, ...page2, ...page3, ...upcoming];
-
-      // bỏ phim trùng
-      const uniqueMovies = Array.from(
-        new Map(allMovies.map((m) => [m.id, m])).values()
-      );
-
-      setMovies(uniqueMovies);
-      setFilteredMovies(uniqueMovies);
+      const nowPlaying = await getNowPlayingMovies();
+      const upcoming = await getUpcomingMovies();
+      setMovies([...nowPlaying, ...upcoming]);
+      setFilteredMovies([...nowPlaying, ...upcoming]);
     };
 
     fetchMovies();
@@ -42,6 +32,7 @@ function Movie() {
     const now = new Date();
 
     const filtered = movies.filter((movie) => {
+      // TMDB movies have release_date
       const releaseDate = new Date(movie.release_date);
 
       // Đang chiếu
@@ -50,9 +41,9 @@ function Movie() {
       // Sắp chiếu
       if (filters.status === "Sắp chiếu" && releaseDate <= now) return false;
 
-      // genre
-      if (filters.genre !== "all") {
-        if (!movie.genre_ids.includes(Number(filters.genre))) return false;
+      // Genre filtering for TMDB movies (genre_ids is array of numbers)
+      if (filters.genre !== "all" && !movie.genre_ids?.includes(parseInt(filters.genre))) {
+        return false;
       }
 
       return true;
@@ -130,26 +121,45 @@ function Movie() {
       <div className="max-w-7xl mx-auto px-6 py-10 text-white">
         <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
 
-          {filteredMovies.map((movie) => (
-            <Link to={`/movie/${movie.id}`} key={movie.id}>
-              <div className="bg-gray-800 p-3 rounded-lg hover:scale-105 transition">
+          {filteredMovies.map((movie) => {
+            const releaseDate = new Date(movie.release_date);
+            const now = new Date();
+            const isUpcoming = releaseDate > now;
+            const formattedDate = releaseDate.toLocaleDateString("vi-VN");
 
-                <img
-                  src={
-                    movie.poster_path
-                      ? `${import.meta.env.VITE_IMG_URL}${movie.poster_path}`
-                      : "https://via.placeholder.com/300x450"
-                  }
-                  className="rounded mb-2"
-                />
+            return (
+              <Link to={`/movie/${movie.id}`} key={movie.id}>
+                <div className="bg-gray-800 p-3 rounded-lg hover:scale-105 transition relative">
 
-                <h3 className="text-sm font-semibold text-center">
-                  {movie.title}
-                </h3>
+                  <img
+                    src={
+                      movie.poster_path
+                        ? `${import.meta.env.VITE_IMG_URL}${movie.poster_path}`
+                        : "https://via.placeholder.com/300x450"
+                    }
+                    className="rounded mb-2"
+                  />
 
-              </div>
-            </Link>
-          ))}
+                  {isUpcoming && (
+                    <div className="absolute top-5 right-5 bg-red-600 text-white px-2 py-1 rounded text-xs font-bold">
+                      Sắp chiếu
+                    </div>
+                  )}
+
+                  <h3 className="text-sm font-semibold text-center">
+                    {movie.title}
+                  </h3>
+
+                  {isUpcoming && (
+                    <p className="text-xs text-yellow-400 text-center mt-1">
+                      {formattedDate}
+                    </p>
+                  )}
+
+                </div>
+              </Link>
+            );
+          })}
 
         </div>
       </div>

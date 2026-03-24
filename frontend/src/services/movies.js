@@ -41,6 +41,18 @@ export const getBannerMovies = async () => {
   return data.results.slice(0, 3);
 };
 
+// Local movies seeded in backend
+export const getLocalMovies = async () => {
+  try {
+    const res = await fetch("/api/movies");
+    const data = await res.json();
+    return data;
+  } catch (err) {
+    console.error("Failed to fetch local movies:", err);
+    return [];
+  }
+};
+
 export const getMovieTrailer = async (movieId) => {
   const res = await fetch(
     `${BASE_URL}/movie/${movieId}/videos?api_key=${API_KEY}&language=vi-VN`
