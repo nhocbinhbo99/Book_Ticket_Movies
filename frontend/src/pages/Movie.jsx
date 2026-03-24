@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
-import Banner from "../components/Banner";
 import {
   getNowPlayingMovies,
   getUpcomingMovies,
 } from "../services/movies";
 import { Link } from "react-router-dom";
+import video from "../assets/Tạo_Video_Giới_Thiệu_Kết_Thúc.mp4";
 
 function Movie() {
   const [movies, setMovies] = useState([]);
@@ -63,7 +63,19 @@ function Movie() {
 
   return (
     <>
-      <Banner />
+      {/* VIDEO HERO SECTION */}
+      <div className="w-full px-6 py-10">
+        <div className="relative w-full h-[450px] bg-black rounded-lg border-2 border-yellow-500 overflow-hidden shadow-lg shadow-yellow-500/20">
+          <video
+            src={video}
+            className="w-full h-full object-cover rounded-lg"
+            autoPlay
+            muted
+            loop
+            controls
+          />
+        </div>
+      </div>
 
       {/* FILTER */}
       <section className="bg-[#111] border-b border-gray-800 py-4">
