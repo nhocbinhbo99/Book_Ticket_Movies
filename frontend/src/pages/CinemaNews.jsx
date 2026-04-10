@@ -1,73 +1,118 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { getNowPlayingMovies } from "../services/movies";
 
-function formatVND(n) {
-  return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + " ₫";
-}
-
-export default function CinemaNews() {
-  const [data, setData] = useState({ topMovies: [], news: [] });
-  const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
+function CinemaNews() {
+  const [movies, setMovies] = useState([]);
+  const [comments, setComments] = useState({});
+  const [openMovieId, setOpenMovieId] = useState(null);
 
   useEffect(() => {
-    fetch("/api/news")
-      .then((r) => r.json())
-      .then((json) => {
-        // ensure sorted by rating (backend now returns rating)
-        const top = (json.topMovies || []).sort((a, b) => b.rating - a.rating).slice(0, 3);
-        setData({ topMovies: top, news: json.news || [] });
-      })
-      .catch((err) => console.error("Failed to load news:", err))
-      .finally(() => setLoading(false));
+    const fetchMovies = async () => {
+      // lấy danh sách phim đang chiếu
+      const nowPlaying = await getNowPlayingMovies(1);
+      setMovies(nowPlaying); 
+    };
+    fetchMovies();
   }, []);
 
-  if (loading) {
-    return <div className="p-8 text-white">Đang tải tin tức...</div>;
-  }
+  const addComment = (movieId, text) => {
+    setComments((prev) => ({
+      ...prev,
+      [movieId]: [...(prev[movieId] || []), { text, likes: 0 }]
+    }));
+  };
+
+  const likeComment = (movieId, index) => {
+    setComments((prev) => {
+      const updated = [...prev[movieId]];
+      updated[index].likes += 1;
+      return { ...prev, [movieId]: updated };
+    });
+  };
 
   return (
-    <div className="max-w-6xl mx-auto px-6 py-8 text-white">
-      <h1 className="text-3xl font-bold mb-6">Tin điện ảnh</h1>
+    <div className="max-w-6xl mx-auto px-6 py-10 text-white">
+      <h2 className="text-2xl font-bold mb-6">Phim đang chiếu</h2>
 
-      <section className="mb-8">
-        <h2 className="text-2xl font-semibold mb-4">Top 3 phim có doanh thu cao</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {data.topMovies.map((m) => (
-            <div key={m.id} className="bg-[#0f1724] rounded-lg p-4">
-              <img src={m.poster} alt={m.title} className="w-full h-52 object-cover rounded" />
-              <h3 className="mt-3 text-lg font-bold">{m.title}</h3>
-              <p className="text-sm text-gray-300">Doanh thu: {formatVND(m.revenue)}</p>
-              <button
-                onClick={() => navigate(`/movie/${m.id}`)}
-                className="mt-3 bg-yellow-500 hover:bg-yellow-600 text-black px-3 py-2 rounded"
-              >
-                Xem chi tiết
-              </button>
-            </div>
-          ))}
-        </div>
-      </section>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+        {movies.map((movie) => (
+          <div
+            key={movie.id}
+            className="bg-gray-900 p-4 rounded-lg cursor-pointer hover:scale-105 transition"
+            onClick={() =>
+              setOpenMovieId(openMovieId === movie.id ? null : movie.id)
+            }
+          >
+            <h3 className="text-lg font-semibold mb-2">{movie.title}</h3>
+            <img
+              src={
+                movie.poster_path
+                  ? `${import.meta.env.VITE_IMG_URL}${movie.poster_path}`
+                  : "https://via.placeholder.com/300x450"
+              }
+              className="w-full rounded mb-2"
+            />
+            <p className="text-sm text-gray-400 mb-2">
+              Ngày phát hành: {movie.release_date}
+            </p>
 
-      <section>
-        <h2 className="text-2xl font-semibold mb-4">Tin tức</h2>
-        <div className="space-y-4">
-          {data.news.map((n) => (
-            <div key={n.id} className="bg-[#0b1220] p-4 rounded">
-              <h3 className="text-lg font-bold">{n.title}</h3>
-              <p className="text-gray-300 mt-1">{n.excerpt}</p>
-              {n.movieId && (
-                <button
-                  onClick={() => navigate(`/movie/${n.movieId}`)}
-                  className="mt-3 bg-indigo-600 hover:bg-indigo-700 px-3 py-1 rounded text-sm"
-                >
-                  Xem phim liên quan
-                </button>
-              )}
-            </div>
-          ))}
-        </div>
-      </section>
+            {/* Chỉ hiện bình luận khi bấm vào */}
+            {openMovieId === movie.id && (
+              <CommentBox
+                movieId={movie.id}
+                comments={comments[movie.id] || []}
+                onAdd={addComment}
+                onLike={likeComment}
+              />
+            )}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
+
+function CommentBox({ movieId, comments, onAdd, onLike }) {
+  const [text, setText] = useState("");
+
+  return (
+    <div className="mt-4">
+      <div className="flex gap-2 mb-3">
+        <input
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          placeholder="Viết bình luận..."
+          className="flex-1 px-3 py-1 rounded bg-gray-700 text-white"
+        />
+        <button
+          onClick={() => {
+            if (text.trim()) {
+              onAdd(movieId, text);
+              setText("");
+            }
+          }}
+          className="bg-yellow-500 px-3 py-1 rounded"
+        >
+          Gửi
+        </button>
+      </div>
+
+      {comments.map((c, i) => (
+        <div
+          key={i}
+          className="flex items-center justify-between bg-gray-800 p-2 rounded mb-2"
+        >
+          <span>{c.text}</span>
+          <button
+            onClick={() => onLike(movieId, i)}
+            className="flex items-center gap-1 text-red-400"
+          >
+            ❤️ {c.likes}
+          </button>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+export default CinemaNews;
