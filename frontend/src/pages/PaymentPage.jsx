@@ -1,0 +1,252 @@
+import React from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+
+export default function PaymentPage() {
+  const { state } = useLocation();
+  const navigate = useNavigate();
+
+  const booking = state || {};
+
+  const {
+    movieTitle,
+    poster,
+    cinemaName,
+    cinemaId,
+    roomName,
+    showtime,
+    selectedSeats = [],
+    totalPrice = 0,
+    paymentMethod,
+  } = booking;
+
+  const paymentMethodLabel = {
+    momo: "MoMo",
+    zalopay: "ZaloPay",
+    visa: "Visa / MasterCard",
+  };
+
+  if (!state) {
+    return (
+      <div className="min-h-screen bg-[#06070d] text-white flex items-center justify-center px-6">
+        <div className="w-full max-w-xl rounded-3xl border border-white/10 bg-white/5 p-8 text-center shadow-2xl">
+          <h1 className="text-3xl font-bold">Không có dữ liệu đặt vé</h1>
+          <p className="mt-3 text-white/70">
+            Bạn chưa chọn ghế hoặc dữ liệu thanh toán không tồn tại.
+          </p>
+          <button
+            onClick={() => navigate("/")}
+            className="mt-6 rounded-2xl bg-white px-6 py-3 font-semibold text-[#4F46E5] transition hover:scale-[1.02]"
+          >
+            Về trang chủ
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-[#06070d] text-white">
+      <div className="relative z-50 mx-auto max-w-7xl px-6 py-10">
+        {/* Header */}
+        <div className="mb-8 rounded-[28px] border border-white/10 bg-gradient-to-r from-[#1b2033] via-[#151a2c] to-[#0f1322] p-6 shadow-[0_20px_60px_rgba(0,0,0,0.35)]">
+          <p className="text-sm uppercase tracking-[0.35em] text-white/40">
+            Payment
+          </p>
+          <h1 className="mt-2 text-4xl font-bold">Màn hình thanh toán</h1>
+          <p className="mt-2 text-white/60">
+            Xác nhận thông tin vé và hoàn tất giao dịch của bạn.
+          </p>
+        </div>
+
+        <div className="grid gap-6 lg:grid-cols-3">
+          {/* Left */}
+          <div className="space-y-6 lg:col-span-2">
+            {/* Movie + ticket info */}
+            <div className="rounded-[28px] border border-white/10 bg-[#111624] p-6 shadow-[0_18px_50px_rgba(0,0,0,0.28)]">
+              <p className="mb-5 text-sm uppercase tracking-[0.3em] text-white/40">
+                Thông tin vé
+              </p>
+
+              <div className="flex flex-col gap-6 md:flex-row">
+                <div className="shrink-0">
+                  {poster ? (
+                    <img
+                      src={`https://image.tmdb.org/t/p/w500${poster}`}
+                      alt={movieTitle}
+                      className="h-[280px] w-[190px] rounded-[24px] object-cover shadow-xl"
+                    />
+                  ) : (
+                    <div className="flex h-[280px] w-[190px] items-center justify-center rounded-[24px] bg-white/10 text-white/50">
+                      No Image
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex-1">
+                  <h2 className="text-3xl font-bold uppercase leading-snug">
+                    {movieTitle}
+                  </h2>
+
+                  <div className="mt-6 grid gap-4 sm:grid-cols-2">
+                    <InfoCard label="Rạp" value={cinemaName} />
+                    <InfoCard label="Mã rạp" value={cinemaId} />
+                    <InfoCard label="Phòng chiếu" value={roomName} />
+                    <InfoCard
+                      label="Xuất chiếu"
+                      value={showtime || "Chưa cập nhật"}
+                    />
+                  </div>
+
+                  <div className="mt-5 rounded-2xl bg-white/5 p-4">
+                    <p className="mb-3 font-semibold text-white/80">
+                      Ghế đã chọn
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {selectedSeats.length > 0 ? (
+                        selectedSeats.map((seat) => (
+                          <span
+                            key={seat}
+                            className="rounded-lg bg-white px-3 py-1.5 text-sm font-semibold text-[#4F46E5]"
+                          >
+                            {seat}
+                          </span>
+                        ))
+                      ) : (
+                        <p className="text-white/50">Chưa chọn ghế</p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Payment method */}
+            <div className="rounded-[28px] border border-white/10 bg-[#111624] p-6 shadow-[0_18px_50px_rgba(0,0,0,0.28)]">
+              <p className="mb-5 text-sm uppercase tracking-[0.3em] text-white/40">
+                Phương thức thanh toán
+              </p>
+
+              <div className="rounded-2xl border border-[#6366F1]/20 bg-gradient-to-r from-[#6366F1]/15 to-[#7C3AED]/10 p-5">
+                <div className="flex items-center justify-between gap-4">
+                  <div>
+                    <p className="text-lg font-semibold">
+                      {paymentMethodLabel[paymentMethod] || "Chưa chọn"}
+                    </p>
+                    <p className="mt-1 text-sm text-white/60">
+                      Phương thức đã chọn từ popup xác nhận thanh toán
+                    </p>
+                  </div>
+                  <div className="rounded-xl bg-white/10 px-4 py-2 text-sm font-medium">
+                    {paymentMethodLabel[paymentMethod] || "N/A"}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Right */}
+          <div className="space-y-6">
+            {/* Summary */}
+            <div className="rounded-[28px] border border-white/10 bg-[#111624] p-6 shadow-[0_18px_50px_rgba(0,0,0,0.28)]">
+              <p className="mb-5 text-sm uppercase tracking-[0.3em] text-white/40">
+                Tóm tắt đơn hàng
+              </p>
+
+              <div className="space-y-4 text-sm">
+                <SummaryRow label="Tên phim" value={movieTitle} />
+                <SummaryRow
+                  label="Số lượng ghế"
+                  value={`${selectedSeats.length} ghế`}
+                />
+                <SummaryRow
+                  label="Ghế"
+                  value={selectedSeats.join(", ") || "Chưa có"}
+                />
+                <SummaryRow
+                  label="Thanh toán qua"
+                  value={paymentMethodLabel[paymentMethod] || "Chưa chọn"}
+                />
+              </div>
+
+              <div className="my-5 border-t border-white/10" />
+
+              <div className="flex items-center justify-between">
+                <span className="text-lg font-semibold text-white/70">
+                  Tổng tiền
+                </span>
+                <span className="text-3xl font-bold text-yellow-400">
+                  {totalPrice.toLocaleString("vi-VN")}đ
+                </span>
+              </div>
+            </div>
+
+            {/* Fake QR / payment block */}
+            <div className="rounded-[28px] border border-white/10 bg-[#111624] p-6 text-center shadow-[0_18px_50px_rgba(0,0,0,0.28)]">
+              <p className="mb-4 text-sm uppercase tracking-[0.3em] text-white/40">
+                Thanh toán
+              </p>
+
+              <div className="mx-auto flex h-52 w-52 items-center justify-center rounded-3xl bg-white p-4">
+                <div className="grid grid-cols-6 gap-1">
+                  {Array.from({ length: 36 }).map((_, index) => (
+                    <div
+                      key={index}
+                      className={`h-7 w-7 rounded-sm bg-black`}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              <p className="mt-4 text-sm text-white/60">
+                Quét mã để thanh toán bằng{" "}
+                <span className="font-semibold text-white">
+                  {paymentMethodLabel[paymentMethod] || "phương thức đã chọn"}
+                </span>
+              </p>
+
+              <div className="mt-6 grid gap-3">
+                <button
+                  onClick={() => navigate(-1)}
+                  className="rounded-2xl border border-white/15 bg-white/5 px-5 py-3 font-semibold text-white transition hover:bg-white/10"
+                >
+                  Quay lại chọn ghế
+                </button>
+
+                <button
+                  onClick={() =>
+                    navigate("/my-ticket-detail", {
+                      state: state,
+                    })
+                  }
+                  className="rounded-2xl bg-white px-6 py-3 font-semibold text-[#4F46E5]"
+                >
+                  Thanh toán
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function InfoCard({ label, value }) {
+  return (
+    <div className="rounded-2xl bg-white/5 p-4">
+      <p className="text-sm text-white/50">{label}</p>
+      <p className="mt-1 font-semibold text-white">{value || "Chưa có"}</p>
+    </div>
+  );
+}
+
+function SummaryRow({ label, value }) {
+  return (
+    <div className="flex items-start justify-between gap-4">
+      <span className="text-white/55">{label}</span>
+      <span className="max-w-[180px] text-right font-medium text-white">
+        {value}
+      </span>
+    </div>
+  );
+}
