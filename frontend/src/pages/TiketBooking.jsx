@@ -3,12 +3,14 @@ import { useNavigate, useParams } from "react-router-dom";
 import Seat from "../components/seat";
 import LegendItems from "../components/LegendItems";
 import cinemaData from "../services/cinemaData.json";
+import PaymentPopup from "../components/PaymentPopup";
 
 export default function TicketBooking() {
   const navigate = useNavigate();
   const { id } = useParams();
   const [movie, setMovie] = useState(null);
   const [selectedSeat, setSelectedSeat] = useState([]);
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
   const reducer = (state, action) => {
     switch (action.type) {
       case "Decrease": {
@@ -107,7 +109,12 @@ export default function TicketBooking() {
           </div>
           <div className="col-span-2 row-span-5 rounded-2xl bg-[#2a2e4382] p-6 text-white">
             <div className="uppercase">
-              <h1 className="text-3xl font-bold leading-snug">{movie.title}</h1>
+              <h1
+                className="text-3xl font-bold leading-snug line-clamp-3 h-[5.25rem] overflow-hidden"
+                title={movie.title}
+              >
+                {movie.title}
+              </h1>
             </div>
 
             <div className="mt-6 space-y-4 text-lg">
@@ -164,7 +171,10 @@ export default function TicketBooking() {
                 >
                   Quay lại
                 </button>
-                <button className="rounded-xl bg-white px-6 py-3 font-semibold text-[#4F46E5] transition hover:scale-105 hover:shadow-lg">
+                <button
+                  onClick={() => setIsPopupOpen(true)}
+                  className="rounded-xl bg-white px-6 py-3 font-semibold text-[#4F46E5] transition hover:scale-105 hover:shadow-lg"
+                >
                   Thanh toán
                 </button>
               </div>
@@ -172,6 +182,34 @@ export default function TicketBooking() {
           </div>
         </div>
       </div>
+      <PaymentPopup
+        isOpen={isPopupOpen}
+        onClose={() => setIsPopupOpen(false)}
+        onConfirm={({ paymentMethod }) => {
+          setIsPopupOpen(false);
+
+          navigate("/payment", {
+            state: {
+              movieId: movie.id,
+              movieTitle: movie.title,
+              poster: movie.poster_path,
+              cinemaName: cinemaData.cinemaName,
+              cinemaId: cinemaData.cinemaId,
+              roomName: cinemaData.screenId,
+              showtime: "19:30 - 11/04/2026",
+              selectedSeats: selectedSeat,
+              totalPrice: totalPrice,
+              paymentMethod,
+            },
+          });
+        }}
+        movieTitle={movie.title}
+        cinemaName={cinemaData.cinemaName}
+        roomName={cinemaData.screenId}
+        showtime="19:30 - 11/04/2026"
+        selectedSeats={selectedSeat}
+        totalPrice={totalPrice}
+      />
     </>
   );
 }
