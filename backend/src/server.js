@@ -16,7 +16,8 @@ app.get("/", (req, res) => {
 });
 app.use("/api/tasks", taskRoute);
 connectDB();
-const PORT = process.env.PORT || 5001;
+const PORT = process.env.PORT;
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`Server running on port ${PORT}`);
+  console.log("PORT ENV:", process.env.PORT);
 });
