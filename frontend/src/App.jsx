@@ -4,7 +4,7 @@ import Footer from "./components/Footer";
 import Home from "./pages/Home";
 import MovieDetail from "./pages/MovieDetail";
 import LightRays from "./components/LightRays";
-import Account from "./pages/Account ";
+import Account from "./pages/Account";
 
 function App() {
   return (
