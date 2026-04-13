@@ -30,6 +30,16 @@ export const getUpcomingMovies = async (page = 1) => {
   return data.results;
 };
 
+// PHIM ĐÁNH GIÁ CAO NHẤT (THÊM MỚI)
+export const getTopRatedMovies = async (page = 1) => {
+  const res = await fetch(
+    `${BASE_URL}/movie/top_rated?api_key=${API_KEY}&language=vi-VN&page=${page}`
+  );
+
+  const data = await res.json();
+  return data.results;
+};
+
 export const getBannerMovies = async () => {
   const res = await fetch(
     `${BASE_URL}/movie/now_playing?api_key=${API_KEY}&language=vi-VN&region=VN&page=1`
@@ -65,4 +75,12 @@ export const getMovieTrailer = async (movieId) => {
   );
 
   return trailer;
+  
+};
+export const getMovieCredits = async (movieId) => {
+  const res = await fetch(
+    `${BASE_URL}/movie/${movieId}/credits?api_key=${API_KEY}&language=vi-VN`
+  );
+  const data = await res.json();
+  return data;
 };
