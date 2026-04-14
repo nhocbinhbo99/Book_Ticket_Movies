@@ -7,7 +7,7 @@ export const getPopularMovies = async () => {
   );
 
   const data = await res.json();
-  console.log("API KEY:", API_KEY);
+ // console.log("API KEY:", API_KEY);
 
   return data.results;
   
