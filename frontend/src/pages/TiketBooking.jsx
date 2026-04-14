@@ -1,6 +1,6 @@
 import { useEffect, useReducer, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import Seat from "../components/seat";
+import Seat from "../components/Seat";
 import LegendItems from "../components/LegendItems";
 import cinemaData from "../services/cinemaData.json";
 import PaymentPopup from "../components/PaymentPopup";

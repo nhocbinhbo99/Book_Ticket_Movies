@@ -20,4 +20,3 @@ export const getAllMovies = async (req, res) => {
   }
 };
 
-export default { getAllMovies };

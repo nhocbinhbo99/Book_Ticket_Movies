@@ -132,7 +132,7 @@ function Movie() {
             <div className="flex items-center justify-center gap-2 text-xs text-gray-400">
               <span>{releaseDate.getFullYear()}</span>
               <span>•</span>
-              <span>{Math.floor(Math.random() * 60 + 90)} phút</span>
+              <span>{movie.runtime ? `${movie.runtime} phút` : "N/A"}</span>
             </div>
 
             {isUpcoming && (

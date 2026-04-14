@@ -35,4 +35,4 @@ export const getNews = async (req, res) => {
   }
 };
 
-export default { getNews };
+
