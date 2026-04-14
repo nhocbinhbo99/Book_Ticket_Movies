@@ -1,4 +1,5 @@
 import logo from "../assets/logo.png";
+import { Link } from "react-router-dom";
 
 function Footer() {
   return (
@@ -31,9 +32,9 @@ function Footer() {
               Giới thiệu
             </h3>
             <ul className="space-y-2 text-sm">
-              <li className="hover:text-yellow-400 cursor-pointer">About Us</li>
-              <li className="hover:text-yellow-400 cursor-pointer">Blog</li>
-              <li className="hover:text-yellow-400 cursor-pointer">Tuyển dụng</li>
+              <li><Link to="/about" className="hover:text-yellow-400">About Us</Link></li>
+              <li><Link to="/blog" className="hover:text-yellow-400">Blog</Link></li>
+              <li><Link to="/career" className="hover:text-yellow-400">Tuyển dụng</Link></li>
             </ul>
           </div>
 
@@ -43,9 +44,9 @@ function Footer() {
               Hỗ trợ
             </h3>
             <ul className="space-y-2 text-sm">
-              <li className="hover:text-yellow-400 cursor-pointer">Trung tâm trợ giúp</li>
-              <li className="hover:text-yellow-400 cursor-pointer">Liên hệ</li>
-              <li className="hover:text-yellow-400 cursor-pointer">Câu hỏi thường gặp</li>
+              <li><Link to="/help" className="hover:text-yellow-400">Trung tâm trợ giúp</Link></li>
+              <li><Link to="/contact" className="hover:text-yellow-400">Liên hệ</Link></li>
+              <li><Link to="/faq" className="hover:text-yellow-400">Câu hỏi thường gặp</Link></li>
             </ul>
           </div>
 
@@ -55,9 +56,9 @@ function Footer() {
               Điều khoản
             </h3>
             <ul className="space-y-2 text-sm">
-              <li className="hover:text-yellow-400 cursor-pointer">Điều khoản sử dụng</li>
-              <li className="hover:text-yellow-400 cursor-pointer">Chính sách bảo mật</li>
-              <li className="hover:text-yellow-400 cursor-pointer">Quy định thanh toán</li>
+              <li><Link to="/terms" className="hover:text-yellow-400">Điều khoản sử dụng</Link></li>
+              <li><Link to="/privacy" className="hover:text-yellow-400">Chính sách bảo mật</Link></li>
+              <li><Link to="/payment" className="hover:text-yellow-400">Quy định thanh toán</Link></li>
             </ul>
           </div>
         </div>
@@ -73,15 +74,9 @@ function Footer() {
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-gray-700 rounded-full flex items-center justify-center hover:bg-yellow-400 hover:text-black cursor-pointer">
-              f
-            </div>
-            <div className="w-8 h-8 bg-gray-700 rounded-full flex items-center justify-center hover:bg-yellow-400 hover:text-black cursor-pointer">
-              X
-            </div>
-            <div className="w-8 h-8 bg-gray-700 rounded-full flex items-center justify-center hover:bg-yellow-400 hover:text-black cursor-pointer">
-              ▶
-            </div>
+            <Link to="/facebook" className="w-8 h-8 bg-gray-700 rounded-full flex items-center justify-center hover:bg-yellow-400 hover:text-black cursor-pointer">f</Link>
+            <Link to="/twitter" className="w-8 h-8 bg-gray-700 rounded-full flex items-center justify-center hover:bg-yellow-400 hover:text-black cursor-pointer">X</Link>
+            <Link to="/youtube" className="w-8 h-8 bg-gray-700 rounded-full flex items-center justify-center hover:bg-yellow-400 hover:text-black cursor-pointer">▶</Link>
           </div>
 
           <div>

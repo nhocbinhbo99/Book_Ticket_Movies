@@ -1,13 +1,43 @@
-import express, { request, response } from 'express';
-import taskRoute from './routes/tasksRouters.js';
-import { connectDB } from './config/db.js';
+import express from "express";
+import cors from "cors";
+import dotenv from "dotenv";
+
+import taskRoute from "./routes/tasksRouters.js";
+import authRoute from "./routes/authRouters.js";
+import moviesRoute from "./routes/moviesRouters.js";
+import newsRoute from "./routes/newsRouters.js";
+import { connectDB } from "./config/db.js";
+
+// Load biến môi trường
+dotenv.config();
 
 const app = express();
 
-app.use("/api/tasks",taskRoute)
+// Middleware
+app.use(cors());
+app.use(express.json());
 
+// Route test server
+app.get("/", (req, res) => {
+  res.status(200).send("TicketFlix backend is running 🚀");
+});
+
+// API routes
+app.use("/api/tasks", taskRoute);
+app.use("/api/auth", authRoute);
+app.use("/api/movies", moviesRoute);
+app.use("/api/news", newsRoute);
+
+// Connect database
 connectDB();
 
-app.listen(5001, () => {
-  console.log('Server is running on port 5001');
+// PORT (quan trọng cho Render)
+const PORT = process.env.PORT || 5001;
+
+// Start server
+app.listen(PORT, "0.0.0.0", () => {
+  console.log("===================================");
+  console.log(`🚀 Server running on port ${PORT}`);
+  console.log(`🌐 Environment PORT: ${process.env.PORT}`);
+  console.log("===================================");
 });

@@ -2,7 +2,9 @@ import Task from "../models/Task.js";
 
 
 export const getAllTasks = (request,response)=>{
-    response.status(200).send("ban co 20 vc can lam");
+  const msg = "Kết nối thành công";
+  console.log("GET /api/tasks - " + msg);
+  response.status(200).json({ message: msg });
 }
 
 export const createTask = (req, res)=>{

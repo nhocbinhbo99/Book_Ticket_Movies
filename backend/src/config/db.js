@@ -1,14 +1,14 @@
 import mongoose from 'mongoose';
 
-export const connectDB = async( ) =>{
-     try {
-        await mongoose.connect(
-          "mongodb+srv://tqatulen3102005_db_user:Tqa3102005@cluster0.gq27zli.mongodb.net/?appName=Cluster0"  
-        );
-        console.log("kien ket thanh cong");
+export const connectDB = async () => {
+  try {
+    if (!process.env.MONGODB_URI) 
+      throw new Error("Missing MONGODB_URI in .env");
 
-     } catch (error) {
-        console.log("loi ket noi scdl:",error);
-        process.exit(1);
-     }
-}
+    await mongoose.connect(process.env.MONGODB_URI);
+    console.log("✅ MongoDB Atlas connected");
+  } catch (error) {
+    console.log("❌ MongoDB connection error:", error);
+    process.exit(1);
+  }
+};
