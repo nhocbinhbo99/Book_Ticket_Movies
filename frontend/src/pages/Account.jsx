@@ -15,7 +15,7 @@ function Account() {
     <div className="bg-[#071226] text-white">
 
       <main className="w-full">
-        <section className="w-full max-w-[1400px] mx-auto px-4 md:px-6 pt-8 pb-4">
+        <section className="w-full max-w-[1400px] mx-auto px-4 md:px-6 pt-24 md:pt-28 pb-4">
           <div className="relative overflow-hidden rounded-2xl border border-yellow-500/30 bg-gradient-to-br from-[#0b1630] via-[#0f1f4b] to-[#12305d] shadow-2xl">
             {/* background glow */}
             <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.18),transparent_30%)]" />
