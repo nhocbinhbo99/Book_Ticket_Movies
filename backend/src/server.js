@@ -3,6 +3,9 @@ import cors from "cors";
 import dotenv from "dotenv";
 
 import taskRoute from "./routes/tasksRouters.js";
+import authRoute from "./routes/authRouters.js";
+import moviesRoute from "./routes/moviesRouters.js";
+import newsRoute from "./routes/newsRouters.js";
 import { connectDB } from "./config/db.js";
 
 // Load biến môi trường
@@ -21,6 +24,9 @@ app.get("/", (req, res) => {
 
 // API routes
 app.use("/api/tasks", taskRoute);
+app.use("/api/auth", authRoute);
+app.use("/api/movies", moviesRoute);
+app.use("/api/news", newsRoute);
 
 // Connect database
 connectDB();

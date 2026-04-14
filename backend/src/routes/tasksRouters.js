@@ -1,4 +1,4 @@
-import express, { request, response } from 'express';
+import express from 'express';
 import { createTask, deleteTask, getAllTasks, updateTask } from '../controllers/tasksControllers.js';
 
 const router = express.Router();
