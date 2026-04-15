@@ -2,15 +2,25 @@ import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
 import logo from "../assets/logo.png";
 import { searchMovies } from "../utils/searchMovies";
+import { useAuth } from "../context/AuthContext";
 
 function Header() {
+  const { user, isLoggedIn, logout } = useAuth();
   const [search, setSearch] = useState("");
   const [results, setResults] = useState([]);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
   const searchRef = useRef(null);
+  const userMenuRef = useRef(null);
   const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    setUserMenuOpen(false);
+    navigate("/");
+  };
 
   // Detect scroll for header background
   useEffect(() => {
@@ -176,18 +186,42 @@ function Header() {
             </div>
 
             {/* USER MENU */}
-            <div className="relative group">
-              <Link
-                to="/account"
-                className="flex items-center gap-2 bg-gradient-to-r from-yellow-500 to-red-500 p-0.5 rounded-full hover:shadow-lg transition-all duration-300"
-              >
-                <div className="bg-gray-800 w-9 h-9 rounded-full flex items-center justify-center hover:bg-gray-700 transition-colors">
-                  <svg className="w-5 h-5 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                  </svg>
-                </div>
-              </Link>
+            <div className="relative hidden md:block">
+              {isLoggedIn ? (
+                // ── Đã đăng nhập: icon + tên → /profile ──
+                <Link
+                  to="/profile"
+                  className="flex items-center gap-2.5 group"
+                >
+                  <div className="bg-gradient-to-r from-yellow-500 to-red-500 p-0.5 rounded-full
+                                  group-hover:shadow-lg group-hover:scale-105 transition-all duration-300">
+                    <div className="bg-gray-800 w-9 h-9 rounded-full flex items-center justify-center overflow-hidden">
+                      {user?.avatar ? (
+                        <img src={user.avatar} alt={user.fullName} className="w-full h-full object-cover" />
+                      ) : (
+                        <span className="text-yellow-400 font-bold text-sm">
+                          {user?.fullName?.charAt(0)?.toUpperCase() || "U"}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <span className="text-sm font-medium text-white/90 group-hover:text-yellow-400 transition-colors max-w-[100px] truncate">
+                    {user?.fullName?.split(" ").slice(-1)[0] || user?.email?.split("@")[0]}
+                  </span>
+                </Link>
+              ) : (
+                // ── Chưa đăng nhập: nút pill → /account ──
+                <Link
+                  to="/account"
+                  className="px-4 py-2 rounded-full border border-yellow-500/50 text-yellow-400
+                             hover:bg-yellow-500/10 font-medium text-sm transition-all duration-300
+                             hover:border-yellow-400 whitespace-nowrap"
+                >
+                  Đăng nhập / Đăng ký
+                </Link>
+              )}
             </div>
+
 
             {/* MOBILE MENU BUTTON */}
             <button
