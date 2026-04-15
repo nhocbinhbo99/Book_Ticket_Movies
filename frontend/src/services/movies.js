@@ -1,5 +1,7 @@
 const API_KEY = import.meta.env.VITE_API_KEY;
 const BASE_URL = "https://api.themoviedb.org/3";
+const API_BASE = (import.meta.env.VITE_API_BASE_URL || "").replace(/\/$/, "");
+const API_URL = API_BASE ? `${API_BASE}/api` : "/api";
 
 export const getPopularMovies = async () => {
   const res = await fetch(
@@ -54,7 +56,7 @@ export const getBannerMovies = async () => {
 // Local movies seeded in backend
 export const getLocalMovies = async () => {
   try {
-    const res = await fetch("/api/movies");
+    const res = await fetch(`${API_URL}/movies`);
     const data = await res.json();
     return data;
   } catch (err) {
