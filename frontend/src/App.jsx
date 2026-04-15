@@ -13,6 +13,7 @@ import Tickets from "./pages/Tickets";
 import AboutUs from "./pages/AboutUs";
 import PaymentPage from "./pages/PaymentPage";
 import MyTicketDetail from "./pages/MyTicketDetail";
+import ProfilePage from "./pages/ProfilePage";
 
 function App() {
   return (
@@ -41,6 +42,7 @@ function App() {
           <Route path="/payment" element={<PaymentPage />} />
           <Route path="/news" element={<CinemaNews />} />
           <Route path="/my-ticket-detail" element={<MyTicketDetail />} />
+          <Route path="/profile" element={<ProfilePage />} />
         </Routes>
         <Footer />
       </div>
