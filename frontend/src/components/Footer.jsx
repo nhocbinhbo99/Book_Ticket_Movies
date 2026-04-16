@@ -16,7 +16,7 @@ function Footer() {
             </span>
           </div>
           <p className="text-sm leading-6 text-gray-400">
-            AFlix là nền tảng đặt vé xem phim trực tuyến giúp bạn dễ dàng tìm
+            TicketFlix là nền tảng đặt vé xem phim trực tuyến giúp bạn dễ dàng tìm
             kiếm lịch chiếu, lựa chọn rạp và đặt vé nhanh chóng chỉ trong vài
             bước. Chúng tôi mang đến trải nghiệm giải trí tiện lợi, hiện đại
             và an toàn cho mọi tín đồ điện ảnh.
@@ -87,7 +87,7 @@ function Footer() {
 
       {/* BOTTOM */}
       <div className="text-center text-xs text-gray-500 pb-4">
-        Ticketflix.com
+        ticketflix.me
       </div>
     </footer>
   );
