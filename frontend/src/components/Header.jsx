@@ -5,7 +5,7 @@ import { searchMovies } from "../utils/searchMovies";
 import { useAuth } from "../context/AuthContext";
 
 function Header() {
-  const { user, isLoggedIn, logout } = useAuth();
+  const {auth, user, isLoggedIn, logout } = useAuth();
   const [search, setSearch] = useState("");
   const [results, setResults] = useState([]);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -79,15 +79,14 @@ function Header() {
 
   return (
     <header
-      className={`fixed top-0 w-full z-50 transition-all duration-300 ${
-        scrolled
-          ? "bg-black/95 backdrop-blur-md shadow-2xl"
-          : "bg-gradient-to-b from-black/80 to-transparent"
-      }`}
+      className={`fixed top-0 w-full z-50 transition-all duration-300 ${scrolled
+        ? "bg-black/95 backdrop-blur-md shadow-2xl"
+        : "bg-gradient-to-b from-black/80 to-transparent"
+        }`}
     >
       <div className="max-w-7xl mx-auto px-4 md:px-6 py-3 md:py-4">
         <div className="flex items-center justify-between">
-          
+
           {/* LOGO */}
           <Link to="/" className="flex items-center gap-2 group">
             <div className="relative">
@@ -118,7 +117,7 @@ function Header() {
 
           {/* RIGHT SECTION */}
           <div className="flex items-center gap-3 md:gap-4">
-            
+
             {/* SEARCH BAR - Desktop */}
             <div ref={searchRef} className="hidden md:block relative">
               <div className={`relative transition-all duration-300 ${isSearchOpen ? "w-80" : "w-64"}`}>
@@ -255,7 +254,17 @@ function Header() {
                 </span>
               </Link>
             ))}
-            
+            {/* Mobile Auth */}
+            <Link
+              to={auth?.user ? "/profile" : "/account"}
+              onClick={() => setMobileMenuOpen(false)}
+              className="flex items-center justify-center gap-3 px-4 py-3 rounded-xl border border-yellow-500/40 bg-yellow-500/10 hover:bg-yellow-500/20 transition-all duration-300"
+            >
+              <span className="text-white font-semibold text-sm">
+                {auth?.user ? "Tài khoản" : "Đăng nhập / Đăng ký"}
+              </span>
+            </Link>
+
             {/* Mobile Search */}
             <div className="px-4 pt-2">
               <div className="relative">
