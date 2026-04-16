@@ -1,7 +1,8 @@
-const API_URL = import.meta.env.VITE_API_BASE_URL + "/api" || "http://localhost:5001/api";
+const API_BASE = (import.meta.env.VITE_API_BASE_URL || "").replace(/\/$/, "");
+const API_URL = API_BASE ? `${API_BASE}/api` : "/api";
 
 export async function getTasks() {
-  const res = await fetch("/api/tasks");
+  const res = await fetch(`${API_URL}/tasks`);
   if (!res.ok) throw new Error("Fetch /api/tasks failed");
   return res.text(); // backend đang trả text
 }

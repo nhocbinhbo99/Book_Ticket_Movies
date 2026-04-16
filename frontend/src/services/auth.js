@@ -1,8 +1,25 @@
 // Dùng relative URL → Vite proxy chuyển sang localhost:5001 khi dev
 // Khi deploy production, cùng domain nên vẫn đúng
-const API_URL = "/api";
-// const BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:5001";
-// const API_URL = `${BASE}/api`;
+const API_BASE = (import.meta.env.VITE_API_BASE_URL || "").replace(/\/$/, "");
+const API_URL = API_BASE ? `${API_BASE}/api` : "/api";
+
+async function parseResponse(res) {
+  const text = await res.text();
+  let data = {};
+
+  try {
+    data = text ? JSON.parse(text) : {};
+  } catch {
+    throw new Error(`Server trả về dữ liệu không hợp lệ (${res.status})`);
+  }
+
+  if (!res.ok) {
+    throw new Error(data.message || `Yêu cầu thất bại (${res.status})`);
+  }
+
+  return data;
+}
+
 // ─── Login ────────────────────────────────────────────────
 export async function loginUser(email, password) {
   const res = await fetch(`${API_URL}/auth/login`, {
@@ -11,12 +28,12 @@ export async function loginUser(email, password) {
     body: JSON.stringify({ email, password }),
   });
 
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.message || "Đăng nhập thất bại");
-  return data; // { message, token, user }
+  return parseResponse(res);
 }
 
+
 // ─── Signup ───────────────────────────────────────────────
+
 export async function signupUser(email, password, fullName, phone) {
   const res = await fetch(`${API_URL}/auth/signup-user`, {
     method: "POST",
@@ -24,9 +41,7 @@ export async function signupUser(email, password, fullName, phone) {
     body: JSON.stringify({ email, password, fullName, phone }),
   });
 
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.message || "Đăng ký thất bại");
-  return data; // { message, token, user }
+  return parseResponse(res);
 }
 
 // ─── Google Auth ──────────────────────────────────────────────
@@ -37,9 +52,7 @@ export async function googleAuthApi(accessToken) {
     body: JSON.stringify({ accessToken }),
   });
 
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.message || "Đăng nhập Google thất bại");
-  return data; // { message, token, user }
+  return parseResponse(res);
 }
 
 // ─── Update Profile ───────────────────────────────────────────
