@@ -61,7 +61,7 @@ function Account() {
         // Lấy ID token từ credential
         const result = await googleAuthApi(tokenResponse.access_token);
         auth.login(result.user, result.token);
-        navigate("/");
+        window.location.href = "/";
       } catch (err) {
         setError(err.message || "Đăng nhập Google thất bại");
       } finally {
@@ -122,19 +122,18 @@ function Account() {
         }
 
         auth.login(result.user, result.token);
-        navigate("/");
+        window.location.href = "/";
 
       } else {
-        // ── ĐĂNG KÝ → chuyển sang tab login ─────────────────
-        await signupUser(email, password, fullName, phone);
+        // ── ĐĂNG KÝ → Tự động đăng nhập luôn ─────────────────
+        const result = await signupUser(email, password, fullName, phone);
 
-        // Reset và chuyển sang tab đăng nhập
-        resetFields();
-        setEmail(email);        // giữ lại email để user khỏi nhập lại
-        setMode("login");
-        setError("");
-        // Hiển thị thông báo thành công (dùng error state với màu xanh — xử lý ở UI)
-        setSuccessMsg("Đăng ký thành công! Hãy đăng nhập để tiếp tục.");
+        if (!result?.token || !result?.user) {
+          throw new Error("Phản hồi không hợp lệ từ server");
+        }
+
+        auth.login(result.user, result.token);
+        window.location.href = "/";
       }
     } catch (err) {
       setError(err.message || "Đã có lỗi xảy ra, vui lòng thử lại");
