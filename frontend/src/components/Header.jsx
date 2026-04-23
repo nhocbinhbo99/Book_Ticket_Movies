@@ -5,7 +5,7 @@ import { searchMovies } from "../utils/searchMovies";
 import { useAuth } from "../context/AuthContext";
 
 function Header() {
-  const {auth, user, isLoggedIn, logout } = useAuth();
+  const { user, isLoggedIn, logout } = useAuth();
   const [search, setSearch] = useState("");
   const [results, setResults] = useState([]);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -256,12 +256,12 @@ function Header() {
             ))}
             {/* Mobile Auth */}
             <Link
-              to={auth?.user ? "/profile" : "/account"}
+              to={isLoggedIn ? "/profile" : "/account"}
               onClick={() => setMobileMenuOpen(false)}
               className="flex items-center justify-center gap-3 px-4 py-3 rounded-xl border border-yellow-500/40 bg-yellow-500/10 hover:bg-yellow-500/20 transition-all duration-300"
             >
               <span className="text-white font-semibold text-sm">
-                {auth?.user ? "Tài khoản" : "Đăng nhập / Đăng ký"}
+                {isLoggedIn ? "Tài khoản" : "Đăng nhập / Đăng ký"}
               </span>
             </Link>
 

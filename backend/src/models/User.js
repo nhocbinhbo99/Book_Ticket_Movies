@@ -33,6 +33,14 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: "",     // lưu ảnh đại diện từ Google hoặc upload
     },
+    resetPasswordOtp: {
+      type: String,
+      default: null,
+    },
+    resetPasswordExpires: {
+      type: Date,
+      default: null,
+    },
   },
   { timestamps: true }
 );
