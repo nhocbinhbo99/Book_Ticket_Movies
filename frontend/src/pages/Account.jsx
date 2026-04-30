@@ -4,7 +4,23 @@ import { AnimatePresence, motion } from "motion/react";
 import { useNavigate } from "react-router-dom";
 import { useGoogleLogin } from "@react-oauth/google";
 import { useAuth } from "../context/AuthContext";
-import { loginUser, signupUser, googleAuthApi } from "../services/auth";
+import { loginUser, signupUser, googleAuthApi, forgotPasswordApi, resetPasswordApi } from "../services/auth";
+
+const EyeIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
+    <circle cx="12" cy="12" r="3"/>
+  </svg>
+);
+
+const EyeOffIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/>
+    <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/>
+    <path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/>
+    <line x1="2" x2="22" y1="2" y2="22"/>
+  </svg>
+);
 
 function Account() {
   const navigate = useNavigate();
@@ -23,6 +39,10 @@ function Account() {
   const [remember, setRemember] = useState(false);
   const [agree, setAgree] = useState(false);
 
+  // Forgot password
+  const [forgotStep, setForgotStep] = useState(1);
+  const [otp, setOtp] = useState("");
+
   // UI state
   const [error, setError] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
@@ -30,6 +50,7 @@ function Account() {
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
   const isLogin = mode === "login";
+  const isForgot = mode === "forgot";
 
   // ─── Google Login ──────────────────────────────────────────
   const googleLogin = useGoogleLogin({
@@ -40,7 +61,7 @@ function Account() {
         // Lấy ID token từ credential
         const result = await googleAuthApi(tokenResponse.access_token);
         auth.login(result.user, result.token);
-        navigate("/");
+        window.location.href = "/";
       } catch (err) {
         setError(err.message || "Đăng nhập Google thất bại");
       } finally {
@@ -63,10 +84,13 @@ function Account() {
     setSuccessMsg("");
     setShowPassword(false);
     setShowConfirmPassword(false);
+    setForgotStep(1);
+    setOtp("");
   };
 
   // ─── Validate ──────────────────────────────────────────────
   const validate = () => {
+    if (isForgot) return null; // Forgot handled separately
     if (!email.trim()) return "Vui lòng nhập email";
     if (!/\S+@\S+\.\S+/.test(email)) return "Email không hợp lệ";
     if (!password) return "Vui lòng nhập mật khẩu";
@@ -98,22 +122,66 @@ function Account() {
         }
 
         auth.login(result.user, result.token);
-        navigate("/");
+        window.location.href = "/";
 
       } else {
-        // ── ĐĂNG KÝ → chuyển sang tab login ─────────────────
-        await signupUser(email, password, fullName, phone);
+        // ── ĐĂNG KÝ → Tự động đăng nhập luôn ─────────────────
+        const result = await signupUser(email, password, fullName, phone);
 
-        // Reset và chuyển sang tab đăng nhập
-        resetFields();
-        setEmail(email);        // giữ lại email để user khỏi nhập lại
-        setMode("login");
-        setError("");
-        // Hiển thị thông báo thành công (dùng error state với màu xanh — xử lý ở UI)
-        setSuccessMsg("Đăng ký thành công! Hãy đăng nhập để tiếp tục.");
+        if (!result?.token || !result?.user) {
+          throw new Error("Phản hồi không hợp lệ từ server");
+        }
+
+        auth.login(result.user, result.token);
+        window.location.href = "/";
       }
     } catch (err) {
       setError(err.message || "Đã có lỗi xảy ra, vui lòng thử lại");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // ─── Forgot Password Handlers ─────────────────────────────
+  const handleForgotSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+    setSuccessMsg("");
+    if (!email.trim() || !/\S+@\S+\.\S+/.test(email)) {
+      setError("Email không hợp lệ");
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const result = await forgotPasswordApi(email);
+      setSuccessMsg(result.message);
+      setForgotStep(2);
+    } catch (err) {
+      setError(err.message || "Lỗi khi yêu cầu quên mật khẩu");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleResetSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+    setSuccessMsg("");
+    if (!otp.trim()) { setError("Vui lòng nhập mã OTP"); return; }
+    if (!password || password.length < 6) { setError("Mật khẩu mới phải từ 6 ký tự"); return; }
+
+    setIsLoading(true);
+    try {
+      const result = await resetPasswordApi(email, otp, password);
+      // Reset về mode login
+      setMode("login");
+      resetFields();
+      setForgotStep(1);
+      setOtp("");
+      setSuccessMsg(result.message);
+    } catch (err) {
+      setError(err.message || "Lỗi khi đặt lại mật khẩu");
     } finally {
       setIsLoading(false);
     }
@@ -153,11 +221,13 @@ function Account() {
                         TicketFlix
                       </p>
                       <h1 className="text-4xl md:text-5xl font-extrabold leading-tight text-yellow-300 drop-shadow-lg">
-                        {isLogin ? "Chào Mừng Trở Lại!" : "Sẵn Sàng Cho Suất Chiếu Tiếp Theo?"}
+                        {isLogin ? "Chào Mừng Trở Lại!" : isForgot ? "Khôi Phục Mật Khẩu" : "Sẵn Sàng Cho Suất Chiếu Tiếp Theo?"}
                       </h1>
                       <p className="mt-6 text-lg md:text-xl leading-8 text-yellow-100/90">
                         {isLogin
                           ? "Đăng nhập để đặt vé nhanh hơn, theo dõi lịch chiếu và lưu thông tin tài khoản của bạn."
+                          : isForgot
+                          ? "Chúng tôi sẽ giúp bạn khôi phục lại quyền truy cập vào tài khoản."
                           : "Tạo tài khoản để khám phá thế giới điện ảnh và nhận trải nghiệm đặt vé tiện lợi hơn."}
                       </p>
                       <p className="mt-3 text-lg md:text-xl leading-8 text-yellow-100/90">
@@ -175,26 +245,28 @@ function Account() {
                   className="w-full max-w-md rounded-[28px] border border-yellow-500/60 bg-white/10 px-6 py-8 shadow-[0_0_40px_rgba(0,0,0,0.25)] backdrop-blur-md md:px-8"
                 >
                   {/* Tabs */}
-                  <div className="mb-6 flex rounded-full bg-white/10 p-1">
-                    {["login", "signup"].map((item) => (
-                      <button
-                        key={item}
-                        onClick={() => switchMode(item)}
-                        className="relative flex-1 rounded-full px-4 py-2 text-sm font-semibold"
-                      >
-                        {mode === item && (
-                          <motion.div
-                            layoutId="auth-tab"
-                            className="absolute inset-0 rounded-full bg-indigo-600"
-                            transition={{ type: "spring", stiffness: 380, damping: 30 }}
-                          />
-                        )}
-                        <span className="relative z-10">
-                          {item === "login" ? "Đăng nhập" : "Đăng ký"}
-                        </span>
-                      </button>
-                    ))}
-                  </div>
+                  {!isForgot && (
+                    <div className="mb-6 flex rounded-full bg-white/10 p-1">
+                      {["login", "signup"].map((item) => (
+                        <button
+                          key={item}
+                          onClick={() => switchMode(item)}
+                          className="relative flex-1 rounded-full px-4 py-2 text-sm font-semibold"
+                        >
+                          {mode === item && (
+                            <motion.div
+                              layoutId="auth-tab"
+                              className="absolute inset-0 rounded-full bg-indigo-600"
+                              transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                            />
+                          )}
+                          <span className="relative z-10">
+                            {item === "login" ? "Đăng nhập" : "Đăng ký"}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
 
                   <AnimatePresence mode="wait">
                     <motion.div
@@ -205,11 +277,13 @@ function Account() {
                       transition={{ duration: 0.3 }}
                     >
                       <h2 className="text-center text-4xl font-extrabold text-white">
-                        {isLogin ? "Đăng Nhập" : "Đăng Ký"}
+                        {isLogin ? "Đăng Nhập" : isForgot ? "Quên Mật Khẩu" : "Đăng Ký"}
                       </h2>
                       <p className="mt-2 text-center text-sm text-white/80">
                         {isLogin
                           ? "Đăng nhập để tiếp tục đặt vé và theo dõi lịch chiếu"
+                          : isForgot
+                          ? (forgotStep === 1 ? "Nhập email của bạn để nhận mã khôi phục" : "Nhập mã OTP và mật khẩu mới của bạn")
                           : "Tạo tài khoản mới để bắt đầu"}
                       </p>
                       <div className="mt-4 flex justify-center">
@@ -238,6 +312,70 @@ function Account() {
                         </motion.div>
                       )}
 
+                      {/* FORGOT PASSWORD FORM */}
+                      {isForgot ? (
+                        <form className="mt-6 space-y-4" onSubmit={forgotStep === 1 ? handleForgotSubmit : handleResetSubmit} noValidate>
+                          {forgotStep === 1 ? (
+                            <input
+                              type="email"
+                              placeholder="Email đã đăng ký"
+                              value={email}
+                              onChange={(e) => setEmail(e.target.value)}
+                              className="w-full rounded-xl border border-white/20 bg-white/25 px-4 py-3 text-white outline-none placeholder:text-white/60 focus:border-yellow-400 transition"
+                            />
+                          ) : (
+                            <>
+                              <input
+                                type="text"
+                                placeholder="Mã OTP 6 số"
+                                value={otp}
+                                onChange={(e) => setOtp(e.target.value)}
+                                className="w-full rounded-xl border border-white/20 bg-white/25 px-4 py-3 text-white outline-none placeholder:text-white/60 focus:border-yellow-400 transition tracking-widest text-center text-xl font-bold"
+                              />
+                              <div className="relative">
+                                <input
+                                  type={showPassword ? "text" : "password"}
+                                  placeholder="Mật khẩu mới"
+                                  value={password}
+                                  onChange={(e) => setPassword(e.target.value)}
+                                  className="w-full rounded-xl border border-white/20 bg-white/25 px-4 py-3 pr-12 text-white outline-none placeholder:text-white/60 focus:border-yellow-400 transition"
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => setShowPassword((p) => !p)}
+                                  className="absolute right-4 top-1/2 -translate-y-1/2 text-white/70 hover:text-white transition"
+                                >
+                                  {showPassword ? <EyeOffIcon /> : <EyeIcon />}
+                                </button>
+                              </div>
+                            </>
+                          )}
+                          <button
+                            type="submit"
+                            disabled={isLoading}
+                            className="w-full rounded-xl bg-indigo-700 py-3 font-semibold text-white transition hover:bg-indigo-600 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                          >
+                            {isLoading ? (
+                              <>
+                                <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                                Đang xử lý...
+                              </>
+                            ) : (
+                              forgotStep === 1 ? "Nhận Mã OTP" : "Đổi Mật Khẩu"
+                            )}
+                          </button>
+                          
+                          <p className="text-center text-sm text-white/75 mt-4">
+                            <button
+                              type="button"
+                              onClick={() => switchMode("login")}
+                              className="font-semibold text-white hover:text-yellow-400 transition"
+                            >
+                              &larr; Quay lại đăng nhập
+                            </button>
+                          </p>
+                        </form>
+                      ) : (
                       <form className="mt-6 space-y-4" onSubmit={handleSubmit} noValidate>
 
                         {/* Signup-only fields */}
@@ -287,7 +425,7 @@ function Account() {
                             onClick={() => setShowPassword((p) => !p)}
                             className="absolute right-4 top-1/2 -translate-y-1/2 text-white/70 hover:text-white transition"
                           >
-                            {showPassword ? "🙈" : "👁"}
+                            {showPassword ? <EyeOffIcon /> : <EyeIcon />}
                           </button>
                         </div>
 
@@ -310,7 +448,7 @@ function Account() {
                               onClick={() => setShowConfirmPassword((p) => !p)}
                               className="absolute right-4 top-1/2 -translate-y-1/2 text-white/70 hover:text-white transition"
                             >
-                              {showConfirmPassword ? "🙈" : "👁"}
+                              {showConfirmPassword ? <EyeOffIcon /> : <EyeIcon />}
                             </button>
                           </motion.div>
                         )}
@@ -327,7 +465,13 @@ function Account() {
                               />
                               <span>Nhớ tài khoản</span>
                             </label>
-                            <span className="text-yellow-400 cursor-not-allowed opacity-70">Quên mật khẩu?</span>
+                            <button 
+                              type="button" 
+                              onClick={() => switchMode("forgot")}
+                              className="text-yellow-400 hover:text-yellow-300 transition hover:underline"
+                            >
+                              Quên mật khẩu?
+                            </button>
                           </div>
                         ) : (
                           <label className="flex items-start gap-3 pt-1 text-sm text-white/80 cursor-pointer">
@@ -406,6 +550,7 @@ function Account() {
                           </button>
                         </p>
                       </form>
+                      )}
                     </motion.div>
                   </AnimatePresence>
                 </motion.div>
