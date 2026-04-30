@@ -1,6 +1,7 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { User } from "../models/User.js";
+import sendEmail from "../utils/sendEmail.js";
 
 // ───────────────────────────────────── helper
 const createToken = (user) =>
@@ -21,8 +22,16 @@ export const loginUser = async (req, res) => {
 
     const user = await User.findOne({ email });
 
-    if (!user || !user.password) {
+    if (!user) {
       return res.status(401).json({ message: "Email hoặc mật khẩu không đúng" });
+    }
+
+    if (!user.password && user.googleId) {
+      return res.status(401).json({ message: "Tài khoản của bạn được đăng ký bằng Google, vui lòng chọn phương thức Đăng nhập qua Google" });
+    }
+
+    if (!user.password) {
+      return res.status(401).json({ message: "Tài khoản chưa thiết lập mật khẩu" });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
@@ -195,5 +204,76 @@ export const updateProfile = async (req, res) => {
   } catch (error) {
     console.error("Update Profile Error:", error);
     return res.status(500).json({ message: "Lỗi server" });
+  }
+};
+
+// ───────────────────────────────────── FORGOT PASSWORD
+export const forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ message: "Vui lòng cung cấp email" });
+
+    const user = await User.findOne({ email });
+    if (!user) return res.status(404).json({ message: "Không tìm thấy tài khoản với email này" });
+
+    // Tạo mã OTP 6 số ngẫu nhiên
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    
+    // Lưu OTP vào DB và set thời hạn 15 phút
+    user.resetPasswordOtp = otp;
+    user.resetPasswordExpires = Date.now() + 15 * 60 * 1000;
+    await user.save();
+
+    // Thực hiện Gửi OTP qua Email
+    await sendEmail({
+      email: user.email,
+      otp: otp,
+    });
+
+    return res.status(200).json({ 
+      message: "Mã OTP đã được gửi đến email của bạn. Vui lòng kiểm tra hộp thư." 
+    });
+  } catch (error) {
+    console.error("Forgot Password Error:", error);
+    return res.status(500).json({ message: "Lỗi server khi quên mật khẩu" });
+  }
+};
+
+// ───────────────────────────────────── RESET PASSWORD
+export const resetPassword = async (req, res) => {
+  try {
+    const { email, otp, newPassword } = req.body;
+
+    if (!email || !otp || !newPassword) {
+      return res.status(400).json({ message: "Vui lòng điền đủ email, OTP và mật khẩu mới" });
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({ message: "Mật khẩu phải từ 6 ký tự trở lên" });
+    }
+
+    const user = await User.findOne({ 
+      email,
+      resetPasswordOtp: otp,
+      resetPasswordExpires: { $gt: Date.now() } // OTP chưa hết hạn
+    });
+
+    if (!user) {
+      return res.status(400).json({ message: "Mã OTP không hợp lệ hoặc đã hết hạn" });
+    }
+
+    // Cập nhật mật khẩu mới
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    user.password = hashedPassword;
+    
+    // Xoá OTP đi
+    user.resetPasswordOtp = undefined;
+    user.resetPasswordExpires = undefined;
+    await user.save();
+
+    return res.status(200).json({ message: "Cập nhật mật khẩu thành công. Vui lòng đăng nhập lại!" });
+  } catch (error) {
+    console.error("Reset Password Error:", error);
+    return res.status(500).json({ message: "Lỗi server khi thay đổi mật khẩu" });
   }
 };

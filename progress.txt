@@ -1,0 +1,23 @@
+Progress Log - GitCinema Book Ticket Movies
+
+2026-04-30
+
+Task: Kiem tra va sua encoding tieng Viet trong du an.
+
+Da thuc hien:
+- Quet cac file source chinh trong frontend va backend, bo qua node_modules va .git.
+- Kiem tra cac file React/JS/JSON/CSS/HTML/Markdown co dau hieu mojibake tieng Viet.
+- Dung Node de doc truc tiep ma Unicode trong file, tranh nham lan voi viec PowerShell hien thi sai dau tieng Viet.
+- Xac nhan nhieu chu bi hien thi meo trong terminal thuc te van dang la Unicode dung trong file, vi du:
+  - frontend/src/services/movies.js co "// PHIM DANG CHIEU" voi ky tu tieng Viet dung.
+  - frontend/src/pages/Home.jsx co "UU DAI DAC BIET" voi ky tu tieng Viet dung.
+  - frontend/src/pages/MovieDetail.jsx co "DA SUA", "NGAN SACH" voi ky tu tieng Viet dung.
+- Khong thuc hien rewrite hang loat vi se co rui ro lam hong cac ky tu tieng Viet dang dung.
+
+Ket luan:
+- Chua phat hien file source nao that su bi hong encoding o muc byte/file.
+- Hien tuong chu tieng Viet bi meo trong ket qua lenh la do console/PowerShell render encoding, khong phai do source code.
+
+Quy uoc tu lan sau:
+- Moi thay doi code, cau hinh, giao dien, backend, script hoac tai lieu trong du an deu phai cap nhat file progress.txt nay.
+- Moi entry moi can ghi ngay thang, muc tieu, file da sua, noi dung thay doi va buoc kiem tra neu co.
