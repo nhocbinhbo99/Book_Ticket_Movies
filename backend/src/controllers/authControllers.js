@@ -1,6 +1,7 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { User } from "../models/User.js";
+import sendEmail from "../utils/sendEmail.js";
 
 // ───────────────────────────────────── helper
 const createToken = (user) =>
@@ -223,11 +224,14 @@ export const forgotPassword = async (req, res) => {
     user.resetPasswordExpires = Date.now() + 15 * 60 * 1000;
     await user.save();
 
-    // In OTP ra console cho mục đích Test (bỏ qua bước cài đặt nodemailer phức tạp)
-    console.log(`\n=======================================\n🤖 MÃ OTP ĐỂ RESET MẬT KHẨU CHO [${email}] LÀ: ${otp}\n=======================================\n`);
+    // Thực hiện Gửi OTP qua Email
+    await sendEmail({
+      email: user.email,
+      otp: otp,
+    });
 
     return res.status(200).json({ 
-      message: "Mã OTP đã được tạo thành công! (Vui lòng kiểm tra Terminal Của Server để lấy mã OTP test)" 
+      message: "Mã OTP đã được gửi đến email của bạn. Vui lòng kiểm tra hộp thư." 
     });
   } catch (error) {
     console.error("Forgot Password Error:", error);
