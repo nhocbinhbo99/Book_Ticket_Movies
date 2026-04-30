@@ -12,9 +12,14 @@ export default function MyTicketDetail() {
     poster,
     cinemaName,
     cinemaId,
+    screenId,
     roomName,
     showtime,
+    showtimeDate,
+    showtimeTime,
+    showtimeId,
     selectedSeats = [],
+    seatDetails = [],
     totalPrice = 0,
     paymentMethod,
     orderCode,
@@ -25,6 +30,10 @@ export default function MyTicketDetail() {
     zalopay: "ZaloPay",
     visa: "Visa / MasterCard",
   };
+  const displaySeatDetails =
+    seatDetails.length > 0
+      ? seatDetails
+      : selectedSeats.map((seatCode) => ({ seatCode }));
 
   if (!state) {
     return (
@@ -52,20 +61,14 @@ export default function MyTicketDetail() {
       <div className="relative z-10 mx-auto max-w-7xl px-6 py-10">
         {/* Header */}
         <div className="mb-8 rounded-[28px] border border-white/10 bg-[#111624] p-6">
-          <p className="text-sm uppercase tracking-[0.35em] text-white/40">
-            Ticket Detail
-          </p>
-          <h1 className="mt-2 text-4xl font-bold">Chi tiết vé đã đặt</h1>
-          <p className="mt-2 text-white/60">
-            Vé của bạn đã được xác nhận. Vui lòng đến rạp đúng giờ.
-          </p>
+          <h1 className=" text-4xl font-bold">Chi tiết vé đã đặt</h1>
         </div>
 
         <div className="grid gap-6 lg:grid-cols-3">
           {/* Left */}
           <div className="space-y-6 lg:col-span-2">
             <div className="rounded-[28px] border border-white/10 bg-[#111624] p-6">
-              <p className="mb-5 text-sm uppercase tracking-[0.3em] text-white/40">
+              <p className="mb-5 text-xl uppercase tracking-[0.3em] white">
                 Thông tin phim
               </p>
 
@@ -90,27 +93,33 @@ export default function MyTicketDetail() {
                   </h2>
 
                   <div className="mt-6 grid gap-4 sm:grid-cols-2">
+                    {/* <InfoCard label="Screen" value={screenId} /> */}
                     <InfoCard label="Rạp" value={cinemaName} />
-                    <InfoCard label="Mã rạp" value={cinemaId} />
+                    {/* <InfoCard label="Mã rạp" value={cinemaId} /> */}
                     <InfoCard label="Phòng chiếu" value={roomName} />
-                    <InfoCard label="Xuất chiếu" value={showtime} />
+                    <InfoCard label="Ngày chiếu" value={showtimeDate} />
+                    <InfoCard
+                      label="Xuất chiếu"
+                      value={showtimeTime || showtime}
+                    />
                   </div>
 
-                  <div className="mt-5 rounded-2xl bg-white/5 p-4">
+                  {/* <div className="mt-5 rounded-2xl bg-white/5 p-4">
                     <p className="mb-3 font-semibold text-white/80">
                       Ghế đã đặt
                     </p>
                     <div className="flex flex-wrap gap-2">
-                      {selectedSeats.map((seat) => (
+                      {displaySeatDetails.map((seat) => (
                         <span
-                          key={seat}
+                          key={seat.seatCode}
                           className="rounded-lg bg-white px-3 py-1.5 text-sm font-semibold text-[#4F46E5]"
                         >
-                          {seat}
+                          {seat.seatCode}
+                          {seat.seatType ? ` - ${seat.seatType}` : ""}
                         </span>
                       ))}
                     </div>
-                  </div>
+                  </div> */}
                 </div>
               </div>
             </div>
@@ -125,7 +134,7 @@ export default function MyTicketDetail() {
                   <div>
                     <p className="text-sm text-white/50">Mã đơn hàng</p>
                     <p className="mt-1 text-2xl font-bold text-[#A5B4FC]">
-                      {orderCode || `TF${Date.now()}`}
+                      {orderCode || "TF-PENDING"}
                     </p>
 
                     <p className="mt-4 text-sm text-white/50">Trạng thái vé</p>
@@ -157,12 +166,27 @@ export default function MyTicketDetail() {
           {/* Right */}
           <div className="space-y-6">
             <div className="rounded-[28px] border border-white/10 bg-[#111624] p-6">
-              <p className="mb-5 text-sm uppercase tracking-[0.3em] text-white/40">
+              <p className="mb-11 text-xl uppercase tracking-[0.3em] white">
                 Tóm tắt vé
               </p>
 
               <div className="space-y-4 text-sm">
+                <SummaryRow label="Screen" value={screenId || "N/A"} />
                 <SummaryRow label="Tên phim" value={movieTitle} />
+                <SummaryRow
+                  label="Mã suất chiếu"
+                  value={showtimeId || "Chưa có"}
+                />
+                <SummaryRow label="Rạp" value={cinemaName || "Chưa có"} />
+                <SummaryRow label="Phòng" value={roomName || "Chưa có"} />
+                <SummaryRow
+                  label="Ngày chiếu"
+                  value={showtimeDate || "Chưa có"}
+                />
+                <SummaryRow
+                  label="Suất chiếu"
+                  value={showtimeTime || showtime || "Chưa có"}
+                />
                 <SummaryRow
                   label="Ghế"
                   value={selectedSeats.join(", ") || "Chưa có"}
@@ -180,7 +204,7 @@ export default function MyTicketDetail() {
 
               <div className="my-5 border-t border-white/10" />
 
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between pb-4">
                 <span className="text-lg font-semibold text-white/70">
                   Tổng tiền
                 </span>

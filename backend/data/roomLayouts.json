@@ -1,0 +1,154 @@
+{
+  "rooms": [
+    {
+      "cinemaId": "CINEMA_01",
+      "cinemaName": "TicketFlix Mega Mall",
+      "screenId": "SCREEN_01",
+      "roomName": "Room 1",
+      "rows": 6,
+      "seatsPerRow": 8,
+      "vipRows": ["D", "E"],
+      "coupleRows": ["F"],
+      "prices": {
+        "standard": 70000,
+        "vip": 90000,
+        "couple": 160000
+      }
+    },
+    {
+      "cinemaId": "CINEMA_01",
+      "cinemaName": "TicketFlix Mega Mall",
+      "screenId": "SCREEN_02",
+      "roomName": "Room 2",
+      "rows": 7,
+      "seatsPerRow": 10,
+      "vipRows": ["E", "F"],
+      "coupleRows": ["G"],
+      "prices": {
+        "standard": 70000,
+        "vip": 90000,
+        "couple": 160000
+      }
+    },
+    {
+      "cinemaId": "CINEMA_01",
+      "cinemaName": "TicketFlix Mega Mall",
+      "screenId": "SCREEN_03",
+      "roomName": "Room 3",
+      "rows": 8,
+      "seatsPerRow": 12,
+      "vipRows": ["F", "G"],
+      "coupleRows": ["H"],
+      "prices": {
+        "standard": 70000,
+        "vip": 90000,
+        "couple": 160000
+      }
+    },
+    {
+      "cinemaId": "CINEMA_01",
+      "cinemaName": "TicketFlix Mega Mall",
+      "screenId": "SCREEN_04",
+      "roomName": "Room 4",
+      "rows": 6,
+      "seatsPerRow": 10,
+      "vipRows": ["C", "D", "E"],
+      "coupleRows": ["F"],
+      "prices": {
+        "standard": 70000,
+        "vip": 90000,
+        "couple": 160000
+      }
+    },
+    {
+      "cinemaId": "CINEMA_01",
+      "cinemaName": "TicketFlix Mega Mall",
+      "screenId": "SCREEN_05",
+      "roomName": "Room 5",
+      "rows": 7,
+      "seatsPerRow": 9,
+      "vipRows": ["E", "F"],
+      "coupleRows": ["G"],
+      "prices": {
+        "standard": 70000,
+        "vip": 90000,
+        "couple": 160000
+      }
+    },
+    {
+      "cinemaId": "CINEMA_01",
+      "cinemaName": "TicketFlix Mega Mall",
+      "screenId": "SCREEN_06",
+      "roomName": "Room 6",
+      "rows": 5,
+      "seatsPerRow": 8,
+      "vipRows": ["D"],
+      "coupleRows": ["E"],
+      "prices": {
+        "standard": 70000,
+        "vip": 90000,
+        "couple": 160000
+      }
+    },
+    {
+      "cinemaId": "CINEMA_01",
+      "cinemaName": "TicketFlix Mega Mall",
+      "screenId": "SCREEN_07",
+      "roomName": "Room 7",
+      "rows": 9,
+      "seatsPerRow": 11,
+      "vipRows": ["F", "G", "H"],
+      "coupleRows": ["I"],
+      "prices": {
+        "standard": 70000,
+        "vip": 90000,
+        "couple": 160000
+      }
+    },
+    {
+      "cinemaId": "CINEMA_01",
+      "cinemaName": "TicketFlix Mega Mall",
+      "screenId": "SCREEN_08",
+      "roomName": "Room 8",
+      "rows": 8,
+      "seatsPerRow": 10,
+      "vipRows": ["E", "F", "G"],
+      "coupleRows": ["H"],
+      "prices": {
+        "standard": 70000,
+        "vip": 90000,
+        "couple": 160000
+      }
+    },
+    {
+      "cinemaId": "CINEMA_01",
+      "cinemaName": "TicketFlix Mega Mall",
+      "screenId": "SCREEN_09",
+      "roomName": "Room 9",
+      "rows": 6,
+      "seatsPerRow": 12,
+      "vipRows": ["D", "E"],
+      "coupleRows": ["F"],
+      "prices": {
+        "standard": 70000,
+        "vip": 90000,
+        "couple": 160000
+      }
+    },
+    {
+      "cinemaId": "CINEMA_01",
+      "cinemaName": "TicketFlix Mega Mall",
+      "screenId": "SCREEN_10",
+      "roomName": "Room 10",
+      "rows": 10,
+      "seatsPerRow": 12,
+      "vipRows": ["G", "H", "I"],
+      "coupleRows": ["J"],
+      "prices": {
+        "standard": 70000,
+        "vip": 90000,
+        "couple": 160000
+      }
+    }
+  ]
+}

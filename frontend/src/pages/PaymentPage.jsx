@@ -1,9 +1,13 @@
-import React from "react";
+import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import { createBooking, getStoredAuthToken } from "../services/bookings";
 
 export default function PaymentPage() {
   const { state } = useLocation();
   const navigate = useNavigate();
+  const { token, user, loading: authLoading } = useAuth();
+  const authToken = token || getStoredAuthToken();
 
   const booking = state || {};
 
@@ -12,17 +16,79 @@ export default function PaymentPage() {
     poster,
     cinemaName,
     cinemaId,
+    screenId,
     roomName,
     showtime,
+    showtimeDate,
+    showtimeTime,
+    showtimeId,
     selectedSeats = [],
+    seatDetails = [],
     totalPrice = 0,
     paymentMethod,
   } = booking;
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [bookingError, setBookingError] = useState("");
 
   const paymentMethodLabel = {
     momo: "MoMo",
     zalopay: "ZaloPay",
     visa: "Visa / MasterCard",
+  };
+
+  const handleCompletePayment = async () => {
+    if (!authToken) {
+      setBookingError("Vui lòng đăng nhập để đặt vé.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    setBookingError("");
+
+    try {
+      const result = await createBooking(
+        {
+          showtimeId,
+          movieTitle,
+          cinemaId,
+          cinemaName,
+          screenId,
+          roomName,
+          selectedSeats,
+          seats: seatDetails,
+          totalPrice,
+          paymentMethod,
+          customerName: user?.fullName,
+          email: user?.email,
+          phone: user?.phone,
+        },
+        authToken,
+      );
+      const savedBooking = result.booking || {};
+
+      navigate("/my-ticket-detail", {
+        state: {
+          ...state,
+          ...savedBooking,
+          poster,
+          paymentMethod,
+          selectedSeats: savedBooking.selectedSeats || selectedSeats,
+          seatDetails: savedBooking.seats || seatDetails,
+          totalPrice: savedBooking.totalPrice ?? totalPrice,
+        },
+      });
+    } catch (error) {
+      const soldSeats = error.payload?.soldSeats;
+      setBookingError(
+        error.status === 401 || error.code === "AUTH_REQUIRED"
+          ? "Vui lòng đăng nhập để đặt vé."
+          : soldSeats?.length
+            ? `Seats already booked: ${soldSeats.join(", ")}`
+            : error.message || "Cannot create booking. Please try again.",
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (!state) {
@@ -38,6 +104,25 @@ export default function PaymentPage() {
             className="mt-6 rounded-2xl bg-white px-6 py-3 font-semibold text-[#4F46E5] transition hover:scale-[1.02]"
           >
             Về trang chủ
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!authLoading && !authToken) {
+    return (
+      <div className="min-h-screen bg-[#06070d] text-white flex items-center justify-center px-6">
+        <div className="w-full max-w-xl rounded-3xl border border-white/10 bg-white/5 p-8 text-center shadow-2xl">
+          <h1 className="text-3xl font-bold">Vui lòng đăng nhập để đặt vé</h1>
+          <p className="mt-3 text-white/70">
+            Bạn cần đăng nhập trước khi hoàn tất thanh toán và lưu vé vào tài khoản.
+          </p>
+          <button
+            onClick={() => navigate("/account")}
+            className="mt-6 rounded-2xl bg-white px-6 py-3 font-semibold text-[#4F46E5] transition hover:scale-[1.02]"
+          >
+            Đăng nhập / Đăng ký
           </button>
         </div>
       </div>
@@ -88,12 +173,14 @@ export default function PaymentPage() {
                   </h2>
 
                   <div className="mt-6 grid gap-4 sm:grid-cols-2">
+                    <InfoCard label="Screen" value={screenId} />
                     <InfoCard label="Rạp" value={cinemaName} />
                     <InfoCard label="Mã rạp" value={cinemaId} />
                     <InfoCard label="Phòng chiếu" value={roomName} />
+                    <InfoCard label="Ngày chiếu" value={showtimeDate} />
                     <InfoCard
                       label="Xuất chiếu"
-                      value={showtime || "Chưa cập nhật"}
+                      value={showtimeTime || showtime || "Chưa cập nhật"}
                     />
                   </div>
 
@@ -153,7 +240,16 @@ export default function PaymentPage() {
               </p>
 
               <div className="space-y-4 text-sm">
+                <SummaryRow label="Screen" value={screenId || "N/A"} />
                 <SummaryRow label="Tên phim" value={movieTitle} />
+                <SummaryRow label="Mã suất chiếu" value={showtimeId || "Chưa có"} />
+                <SummaryRow label="Rạp" value={cinemaName || "Chưa có"} />
+                <SummaryRow label="Phòng" value={roomName || "Chưa có"} />
+                <SummaryRow label="Ngày chiếu" value={showtimeDate || "Chưa có"} />
+                <SummaryRow
+                  label="Suất chiếu"
+                  value={showtimeTime || showtime || "Chưa có"}
+                />
                 <SummaryRow
                   label="Số lượng ghế"
                   value={`${selectedSeats.length} ghế`}
@@ -205,6 +301,12 @@ export default function PaymentPage() {
               </p>
 
               <div className="mt-6 grid gap-3">
+                {bookingError && (
+                  <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-100">
+                    {bookingError}
+                  </div>
+                )}
+
                 <button
                   onClick={() => navigate(-1)}
                   className="rounded-2xl border border-white/15 bg-white/5 px-5 py-3 font-semibold text-white transition hover:bg-white/10"
@@ -213,12 +315,13 @@ export default function PaymentPage() {
                 </button>
 
                 <button
-                  onClick={() =>
-                    navigate("/my-ticket-detail", {
-                      state: state,
-                    })
-                  }
-                  className="rounded-2xl bg-white px-6 py-3 font-semibold text-[#4F46E5]"
+                  disabled={isSubmitting}
+                  onClick={handleCompletePayment}
+                  className={`rounded-2xl px-6 py-3 font-semibold ${
+                    isSubmitting
+                      ? "cursor-not-allowed bg-gray-500/40 text-white/50"
+                      : "bg-white text-[#4F46E5]"
+                  }`}
                 >
                   Thanh toán
                 </button>

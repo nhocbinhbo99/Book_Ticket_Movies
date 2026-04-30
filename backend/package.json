@@ -7,6 +7,8 @@
     "dev": "nodemon src/server.js",
     "start": "node src/server.js",
     "seed": "node src/seed/seedUsers.js",
+    "seed:cinemas": "node src/seed/seedCinemaRooms.js",
+    "seed:showtimes": "node src/seed/seedShowtimes.js",
     "seed:movies": "node seed/seedMovies.js"
   },
   "keywords": [],

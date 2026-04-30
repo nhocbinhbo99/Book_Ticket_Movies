@@ -39,6 +39,11 @@ function Account() {
       try {
         // Lấy ID token từ credential
         const result = await googleAuthApi(tokenResponse.access_token);
+
+        if (!result?.token || !result?.user) {
+          throw new Error("Server did not return a valid Google login token");
+        }
+
         auth.login(result.user, result.token);
         navigate("/");
       } catch (err) {

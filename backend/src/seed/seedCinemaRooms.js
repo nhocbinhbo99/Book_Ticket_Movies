@@ -1,40 +1,61 @@
-// backend/src/seed/seedCinemaRooms.js
 import dotenv from "dotenv";
 import { connectDB } from "../config/db.js";
 import Cinema from "../models/Cinema.js";
 import Room from "../models/Room.js";
 import SeatTemplate from "../models/SeatTemplate.js";
-import { buildDefaultSeatTemplate } from "../utils/seatTemplateFactory.js";
+import { getRoomLayouts } from "../services/roomLayoutService.js";
+import { buildSeatTemplateFromLayout } from "../../utils/seatTemplateFactory.js";
 
 dotenv.config();
 
 async function run() {
   await connectDB();
 
-  let template = await SeatTemplate.findOne({ name: "DEFAULT_TEMPLATE" });
-  if (!template) {
-    template = await SeatTemplate.create(buildDefaultSeatTemplate());
-  }
+  const roomLayouts = getRoomLayouts();
+  let cinema = await Cinema.findOne({ name: "TicketFlix Cinema Hà Nội" });
 
-  let cinema = await Cinema.findOne({ name: "My Cinema" });
   if (!cinema) {
-    cinema = await Cinema.create({ name: "My Cinema", address: "Your address" });
+    cinema = await Cinema.create({
+      name: "TicketFlix Cinema Hà Nội",
+      address: "123 Đường Nguyễn Huệ, Hà Nội",
+    });
   }
 
-  // tạo 10 phòng
-  for (let i = 1; i <= 10; i++) {
-    const name = `Room ${i}`;
-    const existed = await Room.findOne({ cinemaId: cinema._id, name });
+  for (const layout of roomLayouts) {
+    const templateName = `${layout.screenId}_TEMPLATE`;
+    let template = await SeatTemplate.findOne({ name: templateName });
+
+    if (!template) {
+      template = await SeatTemplate.create(
+        buildSeatTemplateFromLayout(layout, templateName),
+      );
+    }
+
+    const existed = await Room.findOne({
+      cinemaId: cinema._id,
+      name: layout.roomName,
+    });
+
     if (!existed) {
-      await Room.create({ cinemaId: cinema._id, name, seatTemplateId: template._id });
+      await Room.create({
+        cinemaId: cinema._id,
+        name: layout.roomName,
+        seatTemplateId: template._id,
+      });
+      continue;
+    }
+
+    if (String(existed.seatTemplateId) !== String(template._id)) {
+      existed.seatTemplateId = template._id;
+      await existed.save();
     }
   }
 
-  console.log("Seed done: cinema + template + 10 rooms");
+  console.log("Seed done: TicketFlix Mega Mall + 10 JSON room layouts");
   process.exit(0);
 }
 
-run().catch((e) => {
-  console.error(e);
+run().catch((error) => {
+  console.error(error);
   process.exit(1);
 });

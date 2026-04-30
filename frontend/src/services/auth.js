@@ -1,7 +1,9 @@
 // Dùng relative URL → Vite proxy chuyển sang localhost:5001 khi dev
 // Khi deploy production, cùng domain nên vẫn đúng
 const API_BASE = (import.meta.env.VITE_API_BASE_URL || "").replace(/\/$/, "");
-const API_URL = API_BASE ? `${API_BASE}/api` : "/api";
+const API_URL =
+  (import.meta.env.VITE_API_URL || "").replace(/\/$/, "") ||
+  (API_BASE ? `${API_BASE}/api` : "/api");
 
 async function parseResponse(res) {
   const text = await res.text();

@@ -1,86 +1,86 @@
 import { cn } from "../lib/utils";
-export default function Seat({
-  setSelectedSeat,
-  selectedSeat,
-  dispatch,
-  cinemaData,
-}) {
-  const rows = cinemaData.rows;
-  const seatPerRow = cinemaData.seatsPerRow;
-  const coupleRows = cinemaData.coupleRows || [];
-  const vipRows = cinemaData.vipRows || [];
-  const soldSeats = cinemaData.soldSeats || [];
-  const price = cinemaData.prices || 0;
 
-  const getRowLabel = (i) => String.fromCharCode(65 + i);
+function getRowLabel(index) {
+  return String.fromCharCode(65 + index);
+}
 
-  const getSeatPrice = (row) => {
-    if (coupleRows.includes(row)) return price.couple;
-    else if (vipRows.includes(row)) return price.vip;
-    else return price.standard;
-  };
+function getSeatType(rowLabel, cinemaData) {
+  if ((cinemaData.coupleRows || []).includes(rowLabel)) return "COUPLE";
+  if ((cinemaData.vipRows || []).includes(rowLabel)) return "VIP";
+  return "STANDARD";
+}
+
+function getSeatPrice(rowLabel, cinemaData) {
+  const prices = cinemaData.prices || {};
+  const seatType = getSeatType(rowLabel, cinemaData);
+
+  if (seatType === "COUPLE") return prices.couple || 0;
+  if (seatType === "VIP") return prices.vip || 0;
+  return prices.standard || 0;
+}
+
+export default function Seat({ setSelectedSeat, selectedSeat, cinemaData }) {
+  const rows = Number(cinemaData?.rows) || 0;
+  const seatPerRow = Number(cinemaData?.seatsPerRow) || 0;
+  const soldSeatSet = new Set(cinemaData?.soldSeats || []);
 
   const handleSelectedSeat = (seatId) => {
-    const seatPrice = getSeatPrice(seatId.charAt(0));
-    setSelectedSeat((prev) => {
-      if (prev.includes(seatId)) {
-        dispatch({ type: "Decrease", payload: seatPrice });
-        return prev.filter((s) => s !== seatId);
-      } else {
-        dispatch({ type: "Increase", payload: seatPrice });
-        return [...prev, seatId];
-      }
-    });
+    if (soldSeatSet.has(seatId)) return;
+
+    setSelectedSeat((prev) =>
+      prev.includes(seatId)
+        ? prev.filter((seat) => seat !== seatId)
+        : [...prev, seatId],
+    );
   };
 
   return (
-    <>
-      <div className="flex flex-col gap-3">
+    <div className="w-full overflow-x-auto pb-2">
+      <div className="mx-auto flex w-max flex-col gap-3">
         {Array.from({ length: rows }).map((_, rowIndex) => {
           const rowLabel = getRowLabel(rowIndex);
-          const isCoupleRow = coupleRows.includes(rowLabel);
-          const isVipRow = vipRows.includes(rowLabel);
-
-          const cols = seatPerRow;
-          const colsTemp = isCoupleRow ? seatPerRow / 2 : seatPerRow;
 
           return (
-            <div key={rowIndex} className="flex items-center">
+            <div key={rowLabel} className="grid grid-cols-[28px_1fr_28px] items-center gap-3">
+              <span className="text-center text-sm font-semibold text-white/60">
+                {rowLabel}
+              </span>
+
               <div
-                className={`grid grid-flow-col gap-2`}
+                className="grid gap-2"
                 style={{
-                  gridTemplateColumns: `repeat(${cols},35px)`,
+                  gridTemplateColumns: `repeat(${seatPerRow}, 40px)`,
                 }}
               >
-                {Array.from({ length: colsTemp }).map((_, seatIndex) => {
+                {Array.from({ length: seatPerRow }).map((__, seatIndex) => {
                   const seatNumber = seatIndex + 1;
                   const seatId = `${rowLabel}${seatNumber}`;
-                  const isSoldSeat = soldSeats.includes(seatId);
+                  const seatType = getSeatType(rowLabel, cinemaData);
+                  const isSoldSeat = soldSeatSet.has(seatId);
                   const isSelected = selectedSeat.includes(seatId);
 
                   return (
                     <button
                       key={seatId}
                       className={cn(
-                        "rounded flex items-center justify-center text-sm text-black",
-                        isCoupleRow ? "col-span-2 h-9" : "w-9 h-9",
-                        isSoldSeat &&
-                          "bg-gray-500 text-white cursor-not-allowed",
-                        isSelected && "bg-red-500 text-white",
+                        "flex h-10 w-10 items-center justify-center rounded text-[11px] font-semibold transition",
+                        isSoldSeat && "cursor-not-allowed bg-gray-500 text-white opacity-70",
+                        isSelected && "bg-red-500 text-white shadow-[0_0_0_2px_rgba(248,113,113,0.35)]",
                         !isSoldSeat &&
-                          isCoupleRow &&
                           !isSelected &&
-                          "bg-pink-500",
+                          seatType === "STANDARD" &&
+                          "border-2 border-green-500 bg-white text-black hover:bg-green-100",
                         !isSoldSeat &&
-                          !isCoupleRow &&
                           !isSelected &&
-                          "bg-white border-[3px] border-green-500",
+                          seatType === "VIP" &&
+                          "border-2 border-red-500 bg-white text-black hover:bg-red-100",
                         !isSoldSeat &&
-                          !isCoupleRow &&
-                          isVipRow &&
-                          "border-red-500",
+                          !isSelected &&
+                          seatType === "COUPLE" &&
+                          "bg-pink-500 text-white hover:bg-pink-400",
                       )}
                       disabled={isSoldSeat}
+                      title={`${seatId} - ${seatType} - ${getSeatPrice(rowLabel, cinemaData).toLocaleString("vi-VN")}d`}
                       onClick={() => handleSelectedSeat(seatId)}
                     >
                       {seatId}
@@ -88,10 +88,14 @@ export default function Seat({
                   );
                 })}
               </div>
+
+              <span className="text-center text-sm font-semibold text-white/60">
+                {rowLabel}
+              </span>
             </div>
           );
         })}
       </div>
-    </>
+    </div>
   );
 }
