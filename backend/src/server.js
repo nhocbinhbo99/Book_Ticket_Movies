@@ -9,6 +9,7 @@ import newsRoute from "./routes/newsRouters.js";
 import cinemasRoute from "./routes/cinemasRouters.js";
 import showtimesRoute from "./routes/showtimesRouters.js";
 import bookingsRoute from "./routes/bookingsRouters.js";
+import paymentRoute from "./routes/paymentRouters.js";
 import { connectDB } from "./config/db.js";
 
 // Load biến môi trường
@@ -33,6 +34,7 @@ app.use("/api/news", newsRoute);
 app.use("/api/cinemas", cinemasRoute);
 app.use("/api/showtimes", showtimesRoute);
 app.use("/api/bookings", bookingsRoute);
+app.use("/api/payment", paymentRoute);
 
 // Connect database
 connectDB();

@@ -33,6 +33,11 @@ const bookingSchema = new mongoose.Schema(
 
     status: { type: String, enum: ["PENDING", "PAID", "CANCELLED"], default: "PENDING" },
     totalAmount: { type: Number, required: true, min: 0 }, // VNĐ
+
+    // MoMo payment fields
+    momoOrderId: { type: String, default: "" },
+    transactionId: { type: String, default: "" },
+    paymentStatus: { type: String, enum: ["PENDING", "PAID", "FAILED"], default: "PENDING" },
   },
   { timestamps: true }
 );
@@ -40,5 +45,6 @@ const bookingSchema = new mongoose.Schema(
 bookingSchema.index({ showtimeId: 1, createdAt: -1 });
 bookingSchema.index({ userId: 1, createdAt: -1 });
 bookingSchema.index({ orderCode: 1 });
+bookingSchema.index({ momoOrderId: 1 });
 
 export default mongoose.model("Booking", bookingSchema);
