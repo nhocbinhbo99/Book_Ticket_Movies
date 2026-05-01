@@ -1,14 +1,17 @@
-// Giải pháp tối thượng: Dùng EmailJS REST API
-// Bỏ qua hoàn toàn giao thức SMTP để vượt tường lửa Render (Port 443 HTTP)
+import emailjs from "@emailjs/nodejs";
 
 const sendEmail = async (options) => {
   console.log("📧 Đang chuẩn bị gửi email đến:", options.email);
 
-  // Thông tin cấu hình EmailJS bạn vừa cung cấp
+  // Khởi tạo EmailJS với Public Key và Private Key
+  // Lưu ý: Public Key bắt đầu bằng chữ I in hoa (IVCK...) chứ không phải chữ L thường
+  emailjs.init({
+    publicKey: "IVCKZxrge7eRFt03I",
+    privateKey: "lwgZ9bWXe2W21P-XhcSt3",
+  });
+
   const EMAILJS_SERVICE_ID = "service_ff12r76";
   const EMAILJS_TEMPLATE_ID = "template_wuuw3vd";
-  const EMAILJS_PUBLIC_KEY = "lVCKZxrge7eRFt03I"; // Nếu lỗi Public Key, có thể là chữ I in hoa: IVCKZxrge7eRFt03I
-  const EMAILJS_PRIVATE_KEY = "lwgZ9bWXe2W21P-XhcSt3";
 
   // HTML Template
   const htmlTemplate = `
@@ -46,37 +49,24 @@ const sendEmail = async (options) => {
     </html>
   `;
 
-  // Gọi REST API của EmailJS (100% vượt tường lửa Render)
-  const payload = {
-    service_id: EMAILJS_SERVICE_ID,
-    template_id: EMAILJS_TEMPLATE_ID,
-    user_id: EMAILJS_PUBLIC_KEY,
-    accessToken: EMAILJS_PRIVATE_KEY,
-    template_params: {
-      to_email: options.email,
-      subject: "TicketFlix - Khôi Phục Mật Khẩu Khách Hàng",
-      html_message: htmlTemplate
-    }
+  const templateParams = {
+    to_email: options.email,
+    subject: "TicketFlix - Khôi Phục Mật Khẩu Khách Hàng",
+    html_message: htmlTemplate
   };
 
   try {
-    const response = await fetch("https://api.emailjs.com/api/v1.0/email/send", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-    });
+    const response = await emailjs.send(
+      EMAILJS_SERVICE_ID,
+      EMAILJS_TEMPLATE_ID,
+      templateParams
+    );
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`EmailJS API Error: ${response.status} - ${errorText}`);
-    }
-
-    console.log("✅ Email đã gửi SIÊU MƯỢT qua EmailJS đến:", options.email);
+    console.log("✅ Email đã gửi SIÊU MƯỢT qua EmailJS SDK đến:", options.email, "Status:", response.status);
   } catch (error) {
-    console.error("❌ Lỗi gửi email qua EmailJS:", error.message);
-    throw error;
+    console.error("❌ Lỗi gửi email qua EmailJS:", error);
+    // Throw error with clean message
+    throw new Error(error.text || error.message || "Lỗi không xác định từ EmailJS");
   }
 };
 
