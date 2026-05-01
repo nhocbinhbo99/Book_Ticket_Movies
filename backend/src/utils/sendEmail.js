@@ -1,28 +1,16 @@
-import nodemailer from "nodemailer";
+// Giải pháp tối thượng: Dùng EmailJS REST API
+// Bỏ qua hoàn toàn giao thức SMTP để vượt tường lửa Render (Port 443 HTTP)
 
 const sendEmail = async (options) => {
   console.log("📧 Đang chuẩn bị gửi email đến:", options.email);
 
-  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-    throw new Error("Thiếu EMAIL_USER hoặc EMAIL_PASS trong biến môi trường");
-  }
+  // Thông tin cấu hình EmailJS bạn vừa cung cấp
+  const EMAILJS_SERVICE_ID = "service_ff12r76";
+  const EMAILJS_TEMPLATE_ID = "template_wuuw3vd";
+  const EMAILJS_PUBLIC_KEY = "lVCKZxrge7eRFt03I"; // Nếu lỗi Public Key, có thể là chữ I in hoa: IVCKZxrge7eRFt03I
+  const EMAILJS_PRIVATE_KEY = "lwgZ9bWXe2W21P-XhcSt3";
 
-  // Thử dùng Port 465 (SMTPS - SSL) thay vì 587 (STARTTLS)
-  // Render đôi khi block 587 nhưng lại thả 465
-  const transporter = nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    port: 465, // <-- Đổi sang 465
-    secure: true, // <-- Bật true khi dùng 465
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS,
-    },
-    // Tăng timeout lên 60s cho Render Free
-    connectionTimeout: 60000,
-    greetingTimeout: 60000,
-    socketTimeout: 60000,
-  });
-
+  // HTML Template
   const htmlTemplate = `
     <!DOCTYPE html>
     <html lang="vi">
@@ -58,16 +46,38 @@ const sendEmail = async (options) => {
     </html>
   `;
 
-  const mailOptions = {
-    from: '"TicketFlix Support" <' + process.env.EMAIL_USER + '>',
-    to: options.email,
-    subject: "TicketFlix - Khôi Phục Mật Khẩu Khách Hàng",
-    html: htmlTemplate,
+  // Gọi REST API của EmailJS (100% vượt tường lửa Render)
+  const payload = {
+    service_id: EMAILJS_SERVICE_ID,
+    template_id: EMAILJS_TEMPLATE_ID,
+    user_id: EMAILJS_PUBLIC_KEY,
+    accessToken: EMAILJS_PRIVATE_KEY,
+    template_params: {
+      to_email: options.email,
+      subject: "TicketFlix - Khôi Phục Mật Khẩu Khách Hàng",
+      html_message: htmlTemplate
+    }
   };
 
-  const info = await transporter.sendMail(mailOptions);
-  console.log("✅ Email đã gửi thành công đến:", options.email);
-  console.log("   Message ID:", info.messageId);
+  try {
+    const response = await fetch("https://api.emailjs.com/api/v1.0/email/send", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`EmailJS API Error: ${response.status} - ${errorText}`);
+    }
+
+    console.log("✅ Email đã gửi SIÊU MƯỢT qua EmailJS đến:", options.email);
+  } catch (error) {
+    console.error("❌ Lỗi gửi email qua EmailJS:", error.message);
+    throw error;
+  }
 };
 
 export default sendEmail;
