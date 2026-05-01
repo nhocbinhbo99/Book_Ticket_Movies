@@ -4,9 +4,8 @@ const sendEmail = async (options) => {
   console.log("📧 Đang chuẩn bị gửi email đến:", options.email);
 
   // Khởi tạo EmailJS với Public Key và Private Key
-  // Lưu ý: Public Key bắt đầu bằng chữ I in hoa (IVCK...) chứ không phải chữ L thường
   emailjs.init({
-    publicKey: "IVCKZxrge7eRFt03I",
+    publicKey: "lVCKZxrge7eRFt03I", // Trả lại chữ l thường như ban đầu
     privateKey: "lwgZ9bWXe2W21P-XhcSt3",
   });
 
