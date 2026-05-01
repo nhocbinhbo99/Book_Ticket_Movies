@@ -5,22 +5,14 @@ import { searchMovies } from "../utils/searchMovies";
 import { useAuth } from "../context/AuthContext";
 
 function Header() {
-  const { user, isLoggedIn, logout } = useAuth();
+  const { user, isLoggedIn } = useAuth();
   const [search, setSearch] = useState("");
   const [results, setResults] = useState([]);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [userMenuOpen, setUserMenuOpen] = useState(false);
   const searchRef = useRef(null);
-  const userMenuRef = useRef(null);
   const navigate = useNavigate();
-
-  const handleLogout = () => {
-    logout();
-    setUserMenuOpen(false);
-    navigate("/");
-  };
 
   // Detect scroll for header background
   useEffect(() => {

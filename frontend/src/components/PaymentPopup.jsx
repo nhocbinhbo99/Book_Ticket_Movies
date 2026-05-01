@@ -12,14 +12,11 @@ export default function PaymentPopup({
   totalPrice = 0,
 }) {
   const [selectedMethod, setSelectedMethod] = useState("momo");
-  const [animate, setAnimate] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
-      setTimeout(() => setAnimate(true), 10);
       document.body.style.overflow = "hidden";
     } else {
-      setAnimate(false);
       document.body.style.overflow = "auto";
     }
 
@@ -54,11 +51,7 @@ export default function PaymentPopup({
   return (
     <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/70 backdrop-blur-sm px-4">
       <div
-        className={`w-full max-w-2xl overflow-hidden rounded-3xl border border-white/10 bg-[#131726] text-white shadow-[0_20px_80px_rgba(0,0,0,0.45)] transition-all duration-300 ${
-          animate
-            ? "translate-y-0 scale-100 opacity-100"
-            : "translate-y-6 scale-95 opacity-0"
-        }`}
+        className="w-full max-w-2xl translate-y-0 scale-100 overflow-hidden rounded-3xl border border-white/10 bg-[#131726] text-white opacity-100 shadow-[0_20px_80px_rgba(0,0,0,0.45)] transition-all duration-300"
       >
         {/* Header */}
         <div className="relative border-b border-white/10 bg-gradient-to-r from-[#1d2440] via-[#1b1f35] to-[#111827] px-6 py-5">

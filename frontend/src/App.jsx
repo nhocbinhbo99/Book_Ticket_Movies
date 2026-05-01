@@ -8,13 +8,14 @@ import Home from "./pages/Home";
 import MovieDetail from "./pages/MovieDetail";
 import Account from "./pages/Account";
 import Movie from "./pages/Movie";
-import TicketBooking from "./pages/TiketBooking";
+import TicketBooking from "./pages/TicketBooking";
 import CinemaNews from "./pages/CinemaNews";
 import Tickets from "./pages/Tickets";
 import AboutUs from "./pages/AboutUs";
 import PaymentPage from "./pages/PaymentPage";
 import MyTicketDetail from "./pages/MyTicketDetail";
 import ProfilePage from "./pages/ProfilePage";
+import PaymentResult from "./pages/PaymentResult";
 
 function App() {
   return (
@@ -45,6 +46,7 @@ function App() {
           <Route path="/news" element={<CinemaNews />} />
           <Route path="/my-ticket-detail" element={<MyTicketDetail />} />
           <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/payment-result" element={<PaymentResult />} />
         </Routes>
         <Footer />
         <FloatingContact />
