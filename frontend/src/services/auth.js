@@ -75,20 +75,47 @@ export async function updateProfileApi(token, { fullName, phone, avatar }) {
 
 // ─── Forgot Password ──────────────────────────────────────────
 export async function forgotPasswordApi(email) {
-  const res = await fetch(`${API_URL}/auth/forgot-password`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email }),
-  });
-  return parseResponse(res);
+  // Timeout 45 giây — Render free tier cold start có thể chậm
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 45000);
+
+  try {
+    const res = await fetch(`${API_URL}/auth/forgot-password`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email }),
+      signal: controller.signal,
+    });
+    return parseResponse(res);
+  } catch (err) {
+    if (err.name === "AbortError") {
+      throw new Error("Yêu cầu quá thời gian. Server có thể đang khởi động, vui lòng thử lại.");
+    }
+    throw err;
+  } finally {
+    clearTimeout(timeout);
+  }
 }
 
 // ─── Reset Password ───────────────────────────────────────────
 export async function resetPasswordApi(email, otp, newPassword) {
-  const res = await fetch(`${API_URL}/auth/reset-password`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, otp, newPassword }),
-  });
-  return parseResponse(res);
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 30000);
+
+  try {
+    const res = await fetch(`${API_URL}/auth/reset-password`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, otp, newPassword }),
+      signal: controller.signal,
+    });
+    return parseResponse(res);
+  } catch (err) {
+    if (err.name === "AbortError") {
+      throw new Error("Yêu cầu quá thời gian. Vui lòng thử lại.");
+    }
+    throw err;
+  } finally {
+    clearTimeout(timeout);
+  }
 }
