@@ -22,18 +22,6 @@ app.get("/", (req, res) => {
   res.status(200).send("TicketFlix backend is running 🚀");
 });
 
-// [TẠM] Debug endpoint — kiểm tra env trên Render, XOÁ SAU KHI FIX XONG
-app.get("/debug-env", (req, res) => {
-  const emailUser = process.env.EMAIL_USER || "";
-  const emailPass = process.env.EMAIL_PASS || "";
-  res.json({
-    EMAIL_USER_set: !!emailUser,
-    EMAIL_USER_value: emailUser ? emailUser.substring(0, 4) + "***@" + (emailUser.split("@")[1] || "NO_AT_SIGN") : "EMPTY",
-    EMAIL_USER_length: emailUser.length,
-    EMAIL_PASS_set: !!emailPass,
-    EMAIL_PASS_length: emailPass.length,
-  });
-});
 
 // API routes
 app.use("/api/tasks", taskRoute);

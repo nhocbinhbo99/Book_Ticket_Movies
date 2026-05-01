@@ -241,7 +241,7 @@ export const forgotPassword = async (req, res) => {
       console.log(`📌 FALLBACK OTP cho ${user.email}: ${otp}`);
       console.log("========================================");
       return res.status(200).json({ 
-        message: `Mã OTP đã được tạo nhưng gửi email thất bại: ${emailError.message}` 
+        message: "Mã OTP đã được tạo nhưng gửi email thất bại, vui lòng liên hệ admin." 
       });
     }
   } catch (error) {
