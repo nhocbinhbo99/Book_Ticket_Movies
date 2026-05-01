@@ -1,58 +1,85 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useState } from "react";
 
 const AuthContext = createContext(null);
+const AUTH_TOKEN_KEY = "tf_token";
+const AUTH_USER_KEY = "tf_user";
+
+function normalizeToken(token = "") {
+  const normalized = String(token || "").trim();
+
+  return normalized && normalized !== "null" && normalized !== "undefined"
+    ? normalized
+    : "";
+}
+
+function readStoredUser() {
+  if (typeof window === "undefined") return null;
+
+  try {
+    return JSON.parse(localStorage.getItem(AUTH_USER_KEY) || "null");
+  } catch {
+    return null;
+  }
+}
+
+function readStoredAuth() {
+  if (typeof window === "undefined") {
+    return { user: null, token: null };
+  }
+
+  const savedToken = normalizeToken(localStorage.getItem(AUTH_TOKEN_KEY));
+  const savedUser = readStoredUser();
+
+  if (savedToken && savedUser) {
+    return { user: savedUser, token: savedToken };
+  }
+
+  localStorage.removeItem(AUTH_TOKEN_KEY);
+  localStorage.removeItem(AUTH_USER_KEY);
+  return { user: null, token: null };
+}
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);   // { id, email, fullName, avatar, role }
-  const [token, setToken] = useState(null); // JWT string
-  const [loading, setLoading] = useState(true); // khởi tạo từ localStorage
+  const [{ user, token }, setAuth] = useState(readStoredAuth);
+  const loading = false;
 
-  // Khi app load: đọc lại từ localStorage
-  useEffect(() => {
-    const savedToken = localStorage.getItem("tf_token");
-    const savedUser  = localStorage.getItem("tf_user");
-    if (savedToken && savedUser) {
-      setToken(savedToken);
-      setUser(JSON.parse(savedUser));
-    }
-    setLoading(false);
-  }, []);
-
-  // Đăng nhập — gọi sau khi nhận response từ API
   const login = (userData, jwtToken) => {
-    setUser(userData);
-    setToken(jwtToken);
-    localStorage.setItem("tf_token", jwtToken);
-    localStorage.setItem("tf_user", JSON.stringify(userData));
+    const cleanToken = normalizeToken(jwtToken);
+
+    if (!userData || !cleanToken) {
+      throw new Error("Server did not return a valid login token");
+    }
+
+    setAuth({ user: userData, token: cleanToken });
+    localStorage.setItem(AUTH_TOKEN_KEY, cleanToken);
+    localStorage.setItem(AUTH_USER_KEY, JSON.stringify(userData));
   };
 
-  // Đăng xuất
   const logout = () => {
-    setUser(null);
-    setToken(null);
-    localStorage.removeItem("tf_token");
-    localStorage.removeItem("tf_user");
+    setAuth({ user: null, token: null });
+    localStorage.removeItem(AUTH_TOKEN_KEY);
+    localStorage.removeItem(AUTH_USER_KEY);
   };
 
-  // Cập nhật thông tin user (sau edit profile)
   const updateUser = (newUserData) => {
-    setUser(newUserData);
-    localStorage.setItem("tf_user", JSON.stringify(newUserData));
+    setAuth((current) => ({ ...current, user: newUserData }));
+    localStorage.setItem(AUTH_USER_KEY, JSON.stringify(newUserData));
   };
-
 
   const isLoggedIn = !!user && !!token;
 
   return (
-    <AuthContext.Provider value={{ user, token, isLoggedIn, loading, login, logout, updateUser }}>
+    <AuthContext.Provider
+      value={{ user, token, isLoggedIn, loading, login, logout, updateUser }}
+    >
       {children}
     </AuthContext.Provider>
   );
 }
 
-// Hook tiện lợi để dùng trong các component
+// eslint-disable-next-line react-refresh/only-export-components
 export function useAuth() {
   const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error("useAuth phải dùng bên trong <AuthProvider>");
+  if (!ctx) throw new Error("useAuth must be used inside <AuthProvider>");
   return ctx;
 }

@@ -8,7 +8,7 @@ import Home from "./pages/Home";
 import MovieDetail from "./pages/MovieDetail";
 import Account from "./pages/Account";
 import Movie from "./pages/Movie";
-import TicketBooking from "./pages/TiketBooking";
+import TicketBooking from "./pages/TicketBooking";
 import CinemaNews from "./pages/CinemaNews";
 import Tickets from "./pages/Tickets";
 import AboutUs from "./pages/AboutUs";

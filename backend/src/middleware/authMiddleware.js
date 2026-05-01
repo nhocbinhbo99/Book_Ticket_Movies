@@ -1,42 +1,69 @@
 import jwt from "jsonwebtoken";
 import { User } from "../models/User.js";
 
-/**
- * Middleware bảo vệ route — yêu cầu đăng nhập.
- * Dùng: router.get("/protected", protect, handler)
- * Header: Authorization: Bearer <token>
- */
+function getBearerToken(req) {
+  const authHeader = req.headers.authorization || "";
+  if (!authHeader.startsWith("Bearer ")) return "";
+
+  const token = authHeader.split(" ")[1];
+  return token && token !== "null" && token !== "undefined" ? token : "";
+}
+
+async function findUserFromToken(token) {
+  const decoded = jwt.verify(token, process.env.JWT_SECRET);
+  const userId = decoded.id || decoded.userId || decoded._id;
+
+  if (!userId) return null;
+  return User.findById(userId).select("-password");
+}
+
 export const protect = async (req, res, next) => {
   try {
-    const authHeader = req.headers.authorization;
+    const token = getBearerToken(req);
 
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return res.status(401).json({ message: "Không có token, truy cập bị từ chối" });
+    if (!token) {
+      return res.status(401).json({ message: "Khong co token, truy cap bi tu choi" });
     }
 
-    const token = authHeader.split(" ")[1];
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await findUserFromToken(token);
 
-    // Gắn user vào request để các handler sau dùng
-    req.user = await User.findById(decoded.id).select("-password");
-
-    if (!req.user) {
-      return res.status(401).json({ message: "Tài khoản không tồn tại" });
+    if (!user) {
+      return res.status(401).json({ message: "Tai khoan khong ton tai" });
     }
 
-    next();
-  } catch (error) {
-    return res.status(401).json({ message: "Token không hợp lệ hoặc đã hết hạn" });
+    req.user = user;
+    req.userId = user._id;
+    return next();
+  } catch {
+    return res.status(401).json({ message: "Token khong hop le hoac da het han" });
   }
 };
 
-/**
- * Middleware phân quyền — chỉ cho phép role nhất định.
- * Dùng: router.delete("/admin-only", protect, requireRole("admin"), handler)
- */
-export const requireRole = (...roles) => (req, res, next) => {
-  if (!roles.includes(req.user?.role)) {
-    return res.status(403).json({ message: "Bạn không có quyền thực hiện hành động này" });
+export const optionalAuth = async (req, res, next) => {
+  try {
+    const token = getBearerToken(req);
+
+    if (!token) return next();
+
+    const user = await findUserFromToken(token);
+
+    if (!user) {
+      return res.status(401).json({ message: "Account not found" });
+    }
+
+    req.user = user;
+    req.userId = user._id;
+    return next();
+  } catch {
+    return res.status(401).json({ message: "Invalid or expired token" });
   }
-  next();
 };
+
+export const requireRole =
+  (...roles) =>
+  (req, res, next) => {
+    if (!roles.includes(req.user?.role)) {
+      return res.status(403).json({ message: "Ban khong co quyen thuc hien hanh dong nay" });
+    }
+    return next();
+  };

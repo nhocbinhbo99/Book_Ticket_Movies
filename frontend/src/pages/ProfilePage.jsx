@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion as Motion, AnimatePresence } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { updateProfileApi } from "../services/auth";
@@ -67,7 +67,7 @@ function AvatarCircle({ user, size = 96, onClick, uploading }) {
 // ── Stat card ─────────────────────────────────────────────
 function StatCard({ icon, label, value, i }) {
   return (
-    <motion.div
+    <Motion.div
       variants={fadeUp} custom={i} initial="hidden" animate="show"
       className="flex flex-col items-center gap-1 rounded-2xl border border-white/10
                  bg-white/5 px-6 py-5 hover:border-yellow-400/40 hover:bg-white/10
@@ -76,7 +76,7 @@ function StatCard({ icon, label, value, i }) {
       <span className="text-3xl">{icon}</span>
       <span className="text-2xl font-extrabold text-yellow-300">{value}</span>
       <span className="text-xs text-gray-400 tracking-wide">{label}</span>
-    </motion.div>
+    </Motion.div>
   );
 }
 
@@ -217,7 +217,7 @@ export default function ProfilePage() {
         {/* ── Toast messages ── */}
         <AnimatePresence>
           {(saveMsg || saveErr) && (
-            <motion.div
+            <Motion.div
               initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
               className={`fixed top-20 left-1/2 -translate-x-1/2 z-50 px-5 py-3 rounded-2xl
                           shadow-2xl text-sm font-medium ${saveMsg
@@ -225,12 +225,12 @@ export default function ProfilePage() {
                 : "bg-red-500/20 border border-red-400/40 text-red-300"}`}
             >
               {saveMsg || saveErr}
-            </motion.div>
+            </Motion.div>
           )}
         </AnimatePresence>
 
         {/* ── Hero card ── */}
-        <motion.div
+        <Motion.div
           variants={fadeUp} custom={0} initial="hidden" animate="show"
           className="relative overflow-hidden rounded-3xl border border-white/10
                      bg-gradient-to-br from-[#0d1b3e] via-[#111f4d] to-[#0c2050]
@@ -281,7 +281,7 @@ export default function ProfilePage() {
               </button>
             </div>
           </div>
-        </motion.div>
+        </Motion.div>
 
         {/* ── Stats ── */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -294,7 +294,7 @@ export default function ProfilePage() {
         </div>
 
         {/* ── Info section ── */}
-        <motion.div
+        <Motion.div
           variants={fadeUp} custom={3} initial="hidden" animate="show"
           className="rounded-3xl border border-white/10 bg-white/[0.03] backdrop-blur-sm p-6 md:p-8"
         >
@@ -364,10 +364,10 @@ export default function ProfilePage() {
               readOnly
             />
           </div>
-        </motion.div>
+        </Motion.div>
 
         {/* ── Quick links ── */}
-        <motion.div
+        <Motion.div
           variants={fadeUp} custom={4} initial="hidden" animate="show"
           className="grid grid-cols-1 md:grid-cols-2 gap-4"
         >
@@ -377,7 +377,7 @@ export default function ProfilePage() {
             { icon: "📰", title: "Tin điện ảnh",   desc: "Cập nhật tin tức mới nhất",   path: "/news",   color: "from-blue-500/20 to-cyan-500/10 border-blue-500/20" },
             { icon: "🏠", title: "Trang chủ",      desc: "Quay về trang chính",          path: "/",       color: "from-green-500/20 to-teal-500/10 border-green-500/20" },
           ].map((item, i) => (
-            <motion.div key={item.path} variants={fadeUp} custom={i} initial="hidden" animate="show">
+            <Motion.div key={item.path} variants={fadeUp} custom={i} initial="hidden" animate="show">
               <Link
                 to={item.path}
                 className={`flex items-center gap-4 rounded-2xl border bg-gradient-to-br
@@ -390,20 +390,20 @@ export default function ProfilePage() {
                 </div>
                 <span className="ml-auto text-gray-500 group-hover:text-yellow-400 transition-colors text-lg">→</span>
               </Link>
-            </motion.div>
+            </Motion.div>
           ))}
-        </motion.div>
+        </Motion.div>
       </div>
 
       {/* ── Logout modal ── */}
       <AnimatePresence>
         {showLogout && (
-          <motion.div
+          <Motion.div
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm px-4"
             onClick={() => setShowLogout(false)}
           >
-            <motion.div
+            <Motion.div
               initial={{ scale: 0.85, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.85, opacity: 0 }} transition={{ type: "spring", stiffness: 300, damping: 25 }}
               className="bg-[#0d1b3e] border border-white/10 rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl"
@@ -426,8 +426,8 @@ export default function ProfilePage() {
                   Đăng xuất
                 </button>
               </div>
-            </motion.div>
-          </motion.div>
+            </Motion.div>
+          </Motion.div>
         )}
       </AnimatePresence>
     </div>
