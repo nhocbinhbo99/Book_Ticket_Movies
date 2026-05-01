@@ -3,14 +3,10 @@ import emailjs from "@emailjs/nodejs";
 const sendEmail = async (options) => {
   console.log("📧 Đang chuẩn bị gửi email đến:", options.email);
 
-  // Khởi tạo EmailJS với Public Key và Private Key
-  emailjs.init({
-    publicKey: "lVCKZxrge7eRFt03I", // Trả lại chữ l thường như ban đầu
-    privateKey: "lwgZ9bWXe2W21P-XhcSt3",
-  });
-
   const EMAILJS_SERVICE_ID = "service_ff12r76";
   const EMAILJS_TEMPLATE_ID = "template_wuuw3vd";
+  const EMAILJS_PUBLIC_KEY = "lVCKZxrge7eRFt03I";
+  const EMAILJS_PRIVATE_KEY = "lwgZ9bWXe2W21P-XhcSt3";
 
   // HTML Template
   const htmlTemplate = `
@@ -58,7 +54,11 @@ const sendEmail = async (options) => {
     const response = await emailjs.send(
       EMAILJS_SERVICE_ID,
       EMAILJS_TEMPLATE_ID,
-      templateParams
+      templateParams,
+      {
+        publicKey: EMAILJS_PUBLIC_KEY,
+        privateKey: EMAILJS_PRIVATE_KEY,
+      }
     );
 
     console.log("✅ Email đã gửi SIÊU MƯỢT qua EmailJS SDK đến:", options.email, "Status:", response.status);
