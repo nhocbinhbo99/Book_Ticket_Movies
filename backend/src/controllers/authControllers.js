@@ -225,14 +225,25 @@ export const forgotPassword = async (req, res) => {
     await user.save();
 
     // Thực hiện Gửi OTP qua Email
-    await sendEmail({
-      email: user.email,
-      otp: otp,
-    });
-
-    return res.status(200).json({ 
-      message: "Mã OTP đã được gửi đến email của bạn. Vui lòng kiểm tra hộp thư." 
-    });
+    try {
+      await sendEmail({
+        email: user.email,
+        otp: otp,
+      });
+      console.log("✅ OTP đã gửi qua email thành công");
+      return res.status(200).json({ 
+        message: "Mã OTP đã được gửi đến email của bạn. Vui lòng kiểm tra hộp thư." 
+      });
+    } catch (emailError) {
+      // Email gửi thất bại → fallback log ra console cho dev
+      console.error("⚠️ Gửi email thất bại:", emailError.message);
+      console.log("========================================");
+      console.log(`📌 FALLBACK OTP cho ${user.email}: ${otp}`);
+      console.log("========================================");
+      return res.status(200).json({ 
+        message: "Mã OTP đã được tạo. Vui lòng kiểm tra email hoặc liên hệ hỗ trợ nếu chưa nhận được." 
+      });
+    }
   } catch (error) {
     console.error("Forgot Password Error:", error);
     return res.status(500).json({ message: "Lỗi server khi quên mật khẩu" });
