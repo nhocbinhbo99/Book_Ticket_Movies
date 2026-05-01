@@ -72,3 +72,23 @@ export async function updateProfileApi(token, { fullName, phone, avatar }) {
   if (!res.ok) throw new Error(data.message || "Cập nhật thất bại");
   return data; // { message, user }
 }
+
+// ─── Forgot Password ──────────────────────────────────────────
+export async function forgotPasswordApi(email) {
+  const res = await fetch(`${API_URL}/auth/forgot-password`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email }),
+  });
+  return parseResponse(res);
+}
+
+// ─── Reset Password ───────────────────────────────────────────
+export async function resetPasswordApi(email, otp, newPassword) {
+  const res = await fetch(`${API_URL}/auth/reset-password`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, otp, newPassword }),
+  });
+  return parseResponse(res);
+}
