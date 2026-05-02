@@ -1,24 +1,34 @@
 // backend/src/utils/seatTemplateFactory.js
-export function buildDefaultSeatTemplate() {
+function getTicketSeatType(layout, rowLabel) {
+  if ((layout.coupleRows || []).includes(rowLabel)) return "SWEET_BOX";
+  if ((layout.vipRows || []).includes(rowLabel)) return "VIP";
+  return "NORMAL";
+}
+
+export function buildSeatTemplateFromLayout(layout, name = "DEFAULT_TEMPLATE") {
   const seats = [];
+  const rowCount = Number(layout?.rows) || 0;
+  const seatsPerRow = Number(layout?.seatsPerRow) || 0;
 
-  const addRow = (row, count, type) => {
-    for (let i = 1; i <= count; i++) {
-      seats.push({ code: `${row}${i}`, type });
+  for (let rowIndex = 0; rowIndex < rowCount; rowIndex += 1) {
+    const rowLabel = String.fromCharCode(65 + rowIndex);
+    const type = getTicketSeatType(layout, rowLabel);
+
+    for (let seatNumber = 1; seatNumber <= seatsPerRow; seatNumber += 1) {
+      seats.push({ code: `${rowLabel}${seatNumber}`, type });
     }
-  };
+  }
 
-  addRow("A", 14, "NORMAL");
-  addRow("B", 14, "NORMAL");
+  return { name, seats };
+}
 
-  addRow("C", 14, "VIP");
-  addRow("D", 14, "VIP");
-  addRow("E", 14, "VIP");
-  addRow("F", 14, "VIP");
-  addRow("G", 14, "VIP");
-
-  // sweet box (ghế đôi)
-  for (let i = 1; i <= 7; i++) seats.push({ code: `H${i}`, type: "SWEET_BOX" });
-
-  return { name: "DEFAULT_TEMPLATE", seats };
+export function buildDefaultSeatTemplate(layout) {
+  return buildSeatTemplateFromLayout(
+    layout || {
+      rows: 0,
+      seatsPerRow: 0,
+      vipRows: [],
+      coupleRows: [],
+    },
+  );
 }
