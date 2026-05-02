@@ -1,8 +1,10 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion as Motion, AnimatePresence } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { updateProfileApi } from "../services/auth";
+import { getMyBookings } from "../services/bookings";
+import { getFavorites } from "../services/favorites";
 
 // ── Variants ─────────────────────────────────────────────
 const fadeUp = {
@@ -130,8 +132,35 @@ export default function ProfilePage() {
   const [saveMsg, setSaveMsg]       = useState("");
   const [saveErr, setSaveErr]       = useState("");
 
+  // Bookings count state
+  const [bookingsCount, setBookingsCount] = useState(0);
+  const [favoritesCount, setFavoritesCount] = useState(0);
+
   // Modal logout
   const [showLogout, setShowLogout] = useState(false);
+
+  // Fetch bookings and favorites on mount
+  useEffect(() => {
+    if (token) {
+      getMyBookings(token)
+        .then((data) => {
+          if (data && Array.isArray(data)) {
+            setBookingsCount(data.length);
+          } else if (data && Array.isArray(data.bookings)) {
+            setBookingsCount(data.bookings.length);
+          }
+        })
+        .catch((err) => console.error("Failed to fetch bookings for profile:", err));
+        
+      getFavorites(token)
+        .then((data) => {
+          if (data && data.favorites) {
+            setFavoritesCount(data.favorites.length);
+          }
+        })
+        .catch((err) => console.error("Failed to fetch favorites:", err));
+    }
+  }, [token]);
 
   const joinedDate = user?.createdAt
     ? new Date(user.createdAt).toLocaleDateString("vi-VN", { year: "numeric", month: "long" })
@@ -284,12 +313,10 @@ export default function ProfilePage() {
         </Motion.div>
 
         {/* ── Stats ── */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 max-w-lg mx-auto gap-4">
           {[
-            { icon: "🎫", label: "Vé đã đặt",   value: "0" },
-            { icon: "🎬", label: "Phim đã xem",  value: "0" },
-            { icon: "⭐", label: "Đánh giá",     value: "0" },
-            { icon: "❤️", label: "Yêu thích",    value: "0" },
+            { icon: "🎫", label: "Vé đã đặt", value: bookingsCount.toString() },
+            { icon: "❤️", label: "Yêu thích", value: favoritesCount.toString() },
           ].map((s, i) => <StatCard key={i} {...s} i={i} />)}
         </div>
 
@@ -374,7 +401,7 @@ export default function ProfilePage() {
           {[
             { icon: "🎟️", title: "Vé của tôi",    desc: "Xem tất cả vé đã đặt",       path: "/ticket", color: "from-yellow-500/20 to-orange-500/10 border-yellow-500/20" },
             { icon: "🎬", title: "Khám phá phim",  desc: "Tìm phim đang chiếu",         path: "/movie",  color: "from-indigo-500/20 to-purple-500/10 border-indigo-500/20" },
-            { icon: "📰", title: "Tin điện ảnh",   desc: "Cập nhật tin tức mới nhất",   path: "/news",   color: "from-blue-500/20 to-cyan-500/10 border-blue-500/20" },
+            { icon: "❤️", title: "Danh sách yêu thích", desc: "Phim bạn đã lưu lại",   path: "/favorites", color: "from-pink-500/20 to-rose-500/10 border-pink-500/20" },
             { icon: "🏠", title: "Trang chủ",      desc: "Quay về trang chính",          path: "/",       color: "from-green-500/20 to-teal-500/10 border-green-500/20" },
           ].map((item, i) => (
             <Motion.div key={item.path} variants={fadeUp} custom={i} initial="hidden" animate="show">

@@ -16,6 +16,7 @@ import PaymentPage from "./pages/PaymentPage";
 import MyTicketDetail from "./pages/MyTicketDetail";
 import ProfilePage from "./pages/ProfilePage";
 import PaymentResult from "./pages/PaymentResult";
+import Favorites from "./pages/Favorites";
 
 function App() {
   return (
@@ -46,6 +47,7 @@ function App() {
           <Route path="/news" element={<CinemaNews />} />
           <Route path="/my-ticket-detail" element={<MyTicketDetail />} />
           <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/favorites" element={<Favorites />} />
           <Route path="/payment-result" element={<PaymentResult />} />
         </Routes>
         <Footer />

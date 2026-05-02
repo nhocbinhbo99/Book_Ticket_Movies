@@ -5,7 +5,9 @@ import {
   googleAuth, 
   updateProfile,
   forgotPassword,
-  resetPassword 
+  resetPassword,
+  getFavorites,
+  toggleFavorite
 } from "../controllers/authControllers.js";
 import { protect } from "../middleware/authMiddleware.js";
 
@@ -19,5 +21,9 @@ router.put("/profile", protect, updateProfile);   // cần JWT
 // Quên mật khẩu
 router.post("/forgot-password", forgotPassword);
 router.post("/reset-password", resetPassword);
+
+// Yêu thích
+router.get("/favorites", protect, getFavorites);
+router.post("/favorites/toggle", protect, toggleFavorite);
 
 export default router;

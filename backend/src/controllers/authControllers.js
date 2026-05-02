@@ -288,3 +288,51 @@ export const resetPassword = async (req, res) => {
     return res.status(500).json({ message: "Lỗi server khi thay đổi mật khẩu" });
   }
 };
+
+// ───────────────────────────────────── GET FAVORITES
+export const getFavorites = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    return res.status(200).json({ favorites: user.favorites });
+  } catch (error) {
+    console.error("Get Favorites Error:", error);
+    return res.status(500).json({ message: "Lỗi server khi lấy danh sách yêu thích" });
+  }
+};
+
+// ───────────────────────────────────── TOGGLE FAVORITE
+export const toggleFavorite = async (req, res) => {
+  try {
+    const { movieId } = req.body;
+    const user = await User.findById(req.user.id);
+    
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const index = user.favorites.indexOf(movieId);
+    let added = false;
+    
+    if (index === -1) {
+      // Add favorite
+      user.favorites.push(movieId);
+      added = true;
+    } else {
+      // Remove favorite
+      user.favorites.splice(index, 1);
+    }
+    
+    await user.save();
+    return res.status(200).json({ 
+      message: added ? "Đã thêm vào danh sách yêu thích" : "Đã xoá khỏi danh sách yêu thích",
+      added,
+      favorites: user.favorites
+    });
+  } catch (error) {
+    console.error("Toggle Favorite Error:", error);
+    return res.status(500).json({ message: "Lỗi server khi cập nhật danh sách yêu thích" });
+  }
+};

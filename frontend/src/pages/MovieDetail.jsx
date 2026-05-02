@@ -1,6 +1,8 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { getMovieCredits } from "../services/movies";
+import { useAuth } from "../context/AuthContext";
+import { getFavorites, toggleFavorite } from "../services/favorites";
 
 function MovieDetail() {
   const navigate = useNavigate();
@@ -17,6 +19,7 @@ function MovieDetail() {
   const [isLoading, setIsLoading] = useState(true);
   const [isFavorite, setIsFavorite] = useState(false);
   const [showFullOverview, setShowFullOverview] = useState(false);
+  const { token } = useAuth();
 
   useEffect(() => {
     const fetchMovieData = async () => {
@@ -45,8 +48,45 @@ function MovieDetail() {
       }
     };
 
+    const checkFavoriteStatus = async () => {
+      if (token && id) {
+        try {
+          const data = await getFavorites(token);
+          if (data && data.favorites && data.favorites.includes(Number(id))) {
+            setIsFavorite(true);
+          }
+        } catch (error) {
+          console.error("Error fetching favorite status:", error);
+        }
+      }
+    };
+
     fetchMovieData();
-  }, [id]);
+    checkFavoriteStatus();
+  }, [id, token]);
+
+  const handleToggleFavorite = async () => {
+    if (!token) {
+      alert("Vui lòng đăng nhập để lưu phim yêu thích.");
+      navigate("/account");
+      return;
+    }
+    
+    try {
+      // Optimitistic update
+      setIsFavorite(!isFavorite);
+      
+      const data = await toggleFavorite(Number(id), token);
+      if (data && typeof data.added === "boolean") {
+        setIsFavorite(data.added);
+      }
+    } catch (error) {
+      console.error("Error toggling favorite:", error);
+      // Revert on error
+      setIsFavorite(isFavorite);
+      alert("Có lỗi xảy ra, vui lòng thử lại.");
+    }
+  };
 
   const addReview = () => {
     if (!newReview || !newName || rating === 0) return;
@@ -137,7 +177,7 @@ function MovieDetail() {
                 🎫 ĐẶT VÉ NGAY
               </button>
               <button
-                onClick={() => setIsFavorite(!isFavorite)}
+                onClick={handleToggleFavorite}
                 className="w-full bg-gray-800 hover:bg-gray-700 text-white font-semibold py-2.5 rounded-lg transition-all duration-300 flex items-center justify-center gap-2 text-sm"
               >
                 {isFavorite ? "❤️ Đã thích" : "🤍 Thêm vào yêu thích"}
